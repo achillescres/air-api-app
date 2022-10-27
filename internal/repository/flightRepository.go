@@ -28,8 +28,14 @@ func (fRepo *flightRepository) GetAll() []*entity.Flight {
 }
 
 func (fRepo *flightRepository) Store(f entity.Flight) error {
-	//TODO implement me
-	panic("implement me")
+	_, contains := fRepo.collection[f.Id]
+	if !contains {
+		fRepo.collection[f.Id] = &f
+	} else {
+		return nil
+	}
+
+	return nil
 }
 
 func (fRepo *flightRepository) DeleteById(id string) (*entity.Flight, error) {
@@ -38,5 +44,5 @@ func (fRepo *flightRepository) DeleteById(id string) (*entity.Flight, error) {
 }
 
 func NewFlightRepository() *flightRepository {
-	return &flightRepository{}
+	return &flightRepository{collection: make(map[string]*entity.Flight)}
 }

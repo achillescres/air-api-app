@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"api-app/internal/adapter/service"
-	"api-app/internal/usecase/composite"
 	"api-app/internal/usecase/dto/ticketDTO"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
@@ -20,11 +19,6 @@ type ticketUsecase struct {
 
 func NewTicketUsecase(ticketService service.TicketService) *ticketUsecase {
 	return &ticketUsecase{ticketService: ticketService}
-}
-
-func GenerateTicketUsecase() *ticketUsecase {
-	ticketComposite := composite.GenerateTicketComposite()
-	return NewTicketUsecase(ticketComposite)
 }
 
 func (tUsecase *ticketUsecase) GetTicketById(id string) *ticketDTO.ReadTicketDTO {
@@ -46,9 +40,9 @@ func (tUsecase *ticketUsecase) GetAllTickets() []*ticketDTO.ReadTicketDTO {
 
 func (tUsecase *ticketUsecase) CreateTicket(createTicket ticketDTO.CreateTicketDTO) error {
 	id := uuid.New().String()
-	flight := ticketDTO.NewTicketFromCreateTicketDTO(id, createTicket)
+	ticket := ticketDTO.NewTicketFromCreateTicketDTO(id, createTicket)
 
-	err := tUsecase.ticketService.CreateTicket(*flight)
+	err := tUsecase.ticketService.CreateTicket(*ticket)
 	if err != nil {
 		log.Errorf("error creating ticket: %s", err.Error())
 		return err

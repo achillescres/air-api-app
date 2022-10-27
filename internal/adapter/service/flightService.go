@@ -27,8 +27,7 @@ func (fService *flightService) GetFlightById(id string) *entity.Flight {
 }
 
 func (fService *flightService) GetAllFlights() []*entity.Flight {
-	//TODO implement me
-	panic("implement me")
+	return fService.storage.GetAll()
 }
 
 func (fService *flightService) GetAllFlightsMap() map[string]*entity.Flight {
@@ -41,7 +40,12 @@ func (fService *flightService) GetAllFlightsMap() map[string]*entity.Flight {
 }
 
 func (fService *flightService) CreateFlight(f entity.Flight) error {
+	err := fService.storage.Store(f)
+	if err != nil {
+		return err
+	}
 
+	return nil
 }
 
 func (fService *flightService) DeleteFlightById(id string) error {

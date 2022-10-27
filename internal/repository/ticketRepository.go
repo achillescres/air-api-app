@@ -3,6 +3,7 @@ package repository
 import (
 	"api-app/internal/adapter/storage"
 	"api-app/internal/entity"
+	"fmt"
 )
 
 type ticketRepository struct {
@@ -23,6 +24,7 @@ func (tRepo *ticketRepository) GetAll() []*entity.Ticket {
 		tickets = append(tickets, ticket)
 	}
 
+	fmt.Println(tRepo.collection)
 	return tickets
 }
 
@@ -46,5 +48,5 @@ func (tRepo *ticketRepository) DeleteById(id string) (*entity.Ticket, error) {
 }
 
 func NewTicketRepository() *ticketRepository {
-	return &ticketRepository{}
+	return &ticketRepository{collection: make(map[string]*entity.Ticket)}
 }

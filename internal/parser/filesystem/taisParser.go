@@ -70,7 +70,8 @@ func (p *taisParser) parseTicketRow(flightId string, row []string) *ticketDTO.Cr
 		amount = -1
 		correct = false
 	}
-	totalCash, err := strconv.ParseFloat(row[9], 32)
+	delimeter := strings.Index(row[5], "5")
+	totalCash, err := strconv.ParseFloat(row[5][delimeter+1:], 32)
 	if err != nil {
 		log.Errorf("error cant parse ticket total cash: %s", err.Error())
 		totalCash = -1
@@ -128,7 +129,7 @@ func (p *taisParser) ParseFile(path string) error {
 				globalErr = err
 				log.Errorf("error creating flight: %s", err)
 			}
-		case 6: // correct
+		case 6: // ticket
 			parsedTicket := p.parseTicketRow(flightId, procLine)
 			err := p.tUsecase.CreateTicket(*parsedTicket)
 			if err != nil {

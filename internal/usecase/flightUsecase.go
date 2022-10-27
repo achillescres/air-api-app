@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"api-app/internal/adapter/service"
-	"api-app/internal/usecase/composite"
 	"api-app/internal/usecase/dto/flightDTO"
 	"api-app/internal/usecase/dto/flightTableDTO"
 	"github.com/google/uuid"
@@ -17,8 +16,8 @@ type FlightUsecase interface {
 }
 
 type flightUsecase struct {
-	flightService service.FlightService
-	ticketService service.TicketService
+	FlightService service.FlightService
+	TicketService service.TicketService
 }
 
 var _ FlightUsecase = (*flightUsecase)(nil)
@@ -29,8 +28,8 @@ func (fUsecase *flightUsecase) GetFlightById(id string) *flightDTO.ReadFlightDTO
 }
 
 func (fUsecase *flightUsecase) GetAllFlightTables() []*flightTableDTO.ResponseFlightTableDTO {
-	flights := fUsecase.flightService.GetAllFlightsMap()
-	tickets := fUsecase.ticketService.GetAllTickets()
+	flights := fUsecase.FlightService.GetAllFlightsMap()
+	tickets := fUsecase.TicketService.GetAllTickets()
 
 	flightTables := map[string]*flightTableDTO.ResponseFlightTableDTO{}
 
@@ -67,7 +66,7 @@ func (fUsecase *flightUsecase) GetTicketById(id string) *flightDTO.ReadFlightDTO
 func (fUsecase *flightUsecase) CreateFlight(createFlight flightDTO.CreateFlightDTO) (string, error) {
 	id := uuid.New().String()
 	flight := flightDTO.NewFlightFromCreateFlightDTO(id, createFlight)
-	err := fUsecase.flightService.CreateFlight(*flight)
+	err := fUsecase.FlightService.CreateFlight(*flight)
 	if err != nil {
 		return "", err
 	}
@@ -75,12 +74,6 @@ func (fUsecase *flightUsecase) CreateFlight(createFlight flightDTO.CreateFlightD
 	return id, nil
 }
 
-func NewFlightUsecase(flightService service.FlightService, ticketService service.TicketService) *flightUsecase {
-	return &flightUsecase{flightService: flightService, ticketService: ticketService}
-}
-
-func GenerateFlightUsecase() *flightUsecase {
-	flightComposite := composite.GenerateFlightComposite()
-	ticketComposite := composite.GenerateTicketComposite()
-	return NewFlightUsecase(flightComposite, ticketComposite)
+func NewFlightUsecase(FlightService service.FlightService, ticketService service.TicketService) *flightUsecase {
+	return &flightUsecase{FlightService: FlightService, TicketService: ticketService}
 }
