@@ -1,0 +1,4 @@
+is_debug: true
+listen:
+  ip: 127.0.0.1
+  port: 777

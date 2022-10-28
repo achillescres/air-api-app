@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"api-app/internal/adapter/storage"
-	"api-app/internal/entity"
+	"api-app/internal/domain/entity"
+	"api-app/internal/domain/storage"
 )
 
 type flightRepository struct {

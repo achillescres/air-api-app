@@ -1,7 +1,7 @@
 package flightDTO
 
 import (
-	"api-app/internal/entity"
+	"api-app/internal/domain/entity"
 )
 
 type CreateFlightDTO struct {

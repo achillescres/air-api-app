@@ -1,6 +1,8 @@
 package storage
 
-import "api-app/internal/entity"
+import (
+	"api-app/internal/domain/entity"
+)
 
 type TicketStorage interface {
 	GetById(id string) *entity.Ticket

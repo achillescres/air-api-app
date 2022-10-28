@@ -7,6 +7,8 @@ import (
 type TicketHandler interface {
 }
 
+var _ Handler = (*TicketHandler)(nil)
+
 type ticketHandler struct {
 	uc usecase.TicketUsecase
 }

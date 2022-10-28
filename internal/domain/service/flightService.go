@@ -1,8 +1,8 @@
 package service
 
 import (
-	"api-app/internal/adapter/storage"
-	"api-app/internal/entity"
+	"api-app/internal/domain/entity"
+	"api-app/internal/domain/storage"
 )
 
 type FlightService interface {

@@ -1,9 +1,8 @@
 package repository
 
 import (
-	"api-app/internal/adapter/storage"
-	"api-app/internal/entity"
-	"fmt"
+	"api-app/internal/domain/entity"
+	"api-app/internal/domain/storage"
 )
 
 type ticketRepository struct {
@@ -24,7 +23,6 @@ func (tRepo *ticketRepository) GetAll() []*entity.Ticket {
 		tickets = append(tickets, ticket)
 	}
 
-	fmt.Println(tRepo.collection)
 	return tickets
 }
 

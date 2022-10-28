@@ -10,6 +10,8 @@ type FlightHandler interface {
 	GetAllFlightTables(c *gin.Context)
 }
 
+var _ Handler = (*FlightHandler)(nil)
+
 type flightHandler struct {
 	uc usecase.FlightUsecase
 }

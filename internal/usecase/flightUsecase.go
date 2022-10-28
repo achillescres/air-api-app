@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"api-app/internal/adapter/service"
+	service2 "api-app/internal/domain/service"
 	"api-app/internal/usecase/dto/flightDTO"
 	"api-app/internal/usecase/dto/flightTableDTO"
 	"github.com/google/uuid"
@@ -16,8 +16,8 @@ type FlightUsecase interface {
 }
 
 type flightUsecase struct {
-	FlightService service.FlightService
-	TicketService service.TicketService
+	FlightService service2.FlightService
+	TicketService service2.TicketService
 }
 
 var _ FlightUsecase = (*flightUsecase)(nil)
@@ -74,6 +74,6 @@ func (fUsecase *flightUsecase) CreateFlight(createFlight flightDTO.CreateFlightD
 	return id, nil
 }
 
-func NewFlightUsecase(FlightService service.FlightService, ticketService service.TicketService) *flightUsecase {
+func NewFlightUsecase(FlightService service2.FlightService, ticketService service2.TicketService) *flightUsecase {
 	return &flightUsecase{FlightService: FlightService, TicketService: ticketService}
 }

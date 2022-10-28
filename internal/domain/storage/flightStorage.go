@@ -1,6 +1,8 @@
 package storage
 
-import "api-app/internal/entity"
+import (
+	"api-app/internal/domain/entity"
+)
 
 type FlightStorage interface {
 	GetById(id string) *entity.Flight

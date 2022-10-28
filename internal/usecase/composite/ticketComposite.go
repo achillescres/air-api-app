@@ -1,7 +1,7 @@
 package composite
 
 import (
-	"api-app/internal/adapter/service"
+	"api-app/internal/domain/service"
 	"api-app/internal/repository"
 )
 

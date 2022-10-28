@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"api-app/internal/adapter/service"
+	"api-app/internal/domain/service"
 	"api-app/internal/usecase/dto/ticketDTO"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
