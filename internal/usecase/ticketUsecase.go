@@ -31,7 +31,7 @@ func (tUsecase *ticketUsecase) GetAllTickets() []*ticketDTO.ReadTicketDTO {
 
 	readTicketsDTO := make([]*ticketDTO.ReadTicketDTO, 0, len(tickets))
 	for _, ticket := range tickets {
-		tempTicket := ticketDTO.ReadTicketDTO(*ticket)
+		tempTicket := ticketDTO.ReadTicketDTO(ticket)
 		readTicketsDTO = append(readTicketsDTO, &tempTicket)
 	}
 

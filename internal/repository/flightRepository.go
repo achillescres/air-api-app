@@ -3,6 +3,7 @@ package repository
 import (
 	"api-app/internal/domain/entity"
 	"api-app/internal/domain/storage"
+	"errors"
 )
 
 type flightRepository struct {
@@ -32,7 +33,7 @@ func (fRepo *flightRepository) Store(f entity.Flight) error {
 	if !contains {
 		fRepo.collection[f.Id] = f
 	} else {
-		return nil
+		return errors.New("error already contains this id")
 	}
 
 	return nil

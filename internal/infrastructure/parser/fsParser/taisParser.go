@@ -127,14 +127,14 @@ func (p *taisParser) ParseFile(path string) error {
 			flightId, err = p.fUsecase.CreateFlight(*parsedFlight)
 			if err != nil {
 				globalErr = err
-				log.Errorf("error creating flight: %s", err)
+				log.Fatalf("fatal creating flight: %s", err)
 			}
 		case 6: // ticket
 			parsedTicket := p.parseTicketRow(flightId, procLine)
 			err := p.tUsecase.CreateTicket(*parsedTicket)
 			if err != nil {
 				globalErr = err
-				log.Errorf("error creating ticket: %s", err.Error())
+				log.Fatalf("fatal creating ticket: %s", err.Error())
 			}
 		}
 	}

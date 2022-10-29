@@ -32,26 +32,26 @@ func (fUsecase *flightUsecase) GetAllFlightTables() []flightTableDTO.ResponseFli
 	flights := fUsecase.FlightService.GetAllFlightsMap()
 	tickets := fUsecase.TicketService.GetAllTickets()
 
-	flightTables := map[string]flightTableDTO.ResponseFlightTableDTO{}
+	fTsMap := map[string]*flightTableDTO.ResponseFlightTableDTO{}
 
 	for _, ticket := range tickets {
-		fT, contains := flightTables[ticket.FlightId]
-		if contains {
-			fT.Tickets = append(fT.Tickets, ticket)
-		} else {
-			flightTables[ticket.FlightId] = *flightTableDTO.NewResponseFlightTableDTOFromFlight(
+		_, contains := fTsMap[ticket.FlightId]
+		if !contains {
+			fTsMap[ticket.FlightId] = flightTableDTO.NewResponseFlightTableDTOFromFlight(
 				flights[ticket.FlightId],
 				make([]entity.Ticket, 0),
 			)
 		}
+		fT, _ := fTsMap[ticket.FlightId]
+		fT.Tickets = append(fT.Tickets, ticket)
 	}
 
-	fT := make([]flightTableDTO.ResponseFlightTableDTO, 0)
-	for _, v := range flightTables {
-		fT = append(fT, v)
+	fTs := make([]flightTableDTO.ResponseFlightTableDTO, 0)
+	for _, v := range fTsMap {
+		fTs = append(fTs, *v)
 	}
 
-	return fT
+	return fTs
 }
 
 func (fUsecase *flightUsecase) GetFlightTableById(id string) flightTableDTO.ResponseFlightTableDTO {
