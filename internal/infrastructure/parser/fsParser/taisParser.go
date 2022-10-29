@@ -70,7 +70,7 @@ func (p *taisParser) parseTicketRow(flightId string, row []string) *ticketDTO.Cr
 		amount = -1
 		correct = false
 	}
-	delimeter := strings.Index(row[5], "5")
+	delimeter := 23
 	totalCash, err := strconv.ParseFloat(row[5][delimeter+1:], 32)
 	if err != nil {
 		log.Errorf("error cant parse ticket total cash: %s", err.Error())

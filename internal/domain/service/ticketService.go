@@ -6,9 +6,9 @@ import (
 )
 
 type TicketService interface {
-	GetTicketById(id string) *entity.Ticket
-	GetAllTickets() []*entity.Ticket
-	GetAllTicketsMap() map[string]*entity.Ticket
+	GetTicketById(id string) entity.Ticket
+	GetAllTickets() []entity.Ticket
+	GetAllTicketsMap() map[string]entity.Ticket
 	CreateTicket(f entity.Ticket) error
 	DeleteTicketById(id string) error
 }
@@ -19,17 +19,19 @@ type ticketService struct {
 	storage storage.TicketStorage
 }
 
-func (tService *ticketService) GetAllTicketsMap() map[string]*entity.Ticket {
+var _ TicketService = (*ticketService)(nil)
+
+func (tService *ticketService) GetAllTicketsMap() map[string]entity.Ticket {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (tService *ticketService) GetTicketById(id string) *entity.Ticket {
+func (tService *ticketService) GetTicketById(id string) entity.Ticket {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (tService *ticketService) GetAllTickets() []*entity.Ticket {
+func (tService *ticketService) GetAllTickets() []entity.Ticket {
 	return tService.storage.GetAll()
 }
 
@@ -46,8 +48,6 @@ func (tService *ticketService) DeleteTicketById(id string) error {
 	//TODO implement me
 	panic("implement me")
 }
-
-var _ TicketService = (*ticketService)(nil)
 
 func NewTicketService(storage storage.TicketStorage) *ticketService {
 	return &ticketService{storage: storage}

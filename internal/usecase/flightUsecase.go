@@ -1,51 +1,52 @@
 package usecase
 
 import (
-	service2 "api-app/internal/domain/service"
+	"api-app/internal/domain/entity"
+	"api-app/internal/domain/service"
 	"api-app/internal/usecase/dto/flightDTO"
 	"api-app/internal/usecase/dto/flightTableDTO"
 	"github.com/google/uuid"
 )
 
 type FlightUsecase interface {
-	GetAllFlightTables() []*flightTableDTO.ResponseFlightTableDTO
-	GetFlightTableById(id string) *flightTableDTO.ResponseFlightTableDTO
-	GetFlightById(id string) *flightDTO.ReadFlightDTO
+	GetAllFlightTables() []flightTableDTO.ResponseFlightTableDTO
+	GetFlightTableById(id string) flightTableDTO.ResponseFlightTableDTO
+	GetFlightById(id string) flightDTO.ReadFlightDTO
 
 	CreateFlight(createFlight flightDTO.CreateFlightDTO) (string, error)
 }
 
 type flightUsecase struct {
-	FlightService service2.FlightService
-	TicketService service2.TicketService
+	FlightService service.FlightService
+	TicketService service.TicketService
 }
 
 var _ FlightUsecase = (*flightUsecase)(nil)
 
-func (fUsecase *flightUsecase) GetFlightById(id string) *flightDTO.ReadFlightDTO {
+func (fUsecase *flightUsecase) GetFlightById(id string) flightDTO.ReadFlightDTO {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (fUsecase *flightUsecase) GetAllFlightTables() []*flightTableDTO.ResponseFlightTableDTO {
+func (fUsecase *flightUsecase) GetAllFlightTables() []flightTableDTO.ResponseFlightTableDTO {
 	flights := fUsecase.FlightService.GetAllFlightsMap()
 	tickets := fUsecase.TicketService.GetAllTickets()
 
-	flightTables := map[string]*flightTableDTO.ResponseFlightTableDTO{}
+	flightTables := map[string]flightTableDTO.ResponseFlightTableDTO{}
 
 	for _, ticket := range tickets {
 		fT, contains := flightTables[ticket.FlightId]
 		if contains {
 			fT.Tickets = append(fT.Tickets, ticket)
 		} else {
-			flightTables[ticket.FlightId] = flightTableDTO.NewResponseFlightTableDTOFromFlight(
-				*flights[ticket.FlightId],
-				nil,
+			flightTables[ticket.FlightId] = *flightTableDTO.NewResponseFlightTableDTOFromFlight(
+				flights[ticket.FlightId],
+				make([]entity.Ticket, 0),
 			)
 		}
 	}
 
-	fT := make([]*flightTableDTO.ResponseFlightTableDTO, 0)
+	fT := make([]flightTableDTO.ResponseFlightTableDTO, 0)
 	for _, v := range flightTables {
 		fT = append(fT, v)
 	}
@@ -53,12 +54,7 @@ func (fUsecase *flightUsecase) GetAllFlightTables() []*flightTableDTO.ResponseFl
 	return fT
 }
 
-func (fUsecase *flightUsecase) GetFlightTableById(id string) *flightTableDTO.ResponseFlightTableDTO {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (fUsecase *flightUsecase) GetTicketById(id string) *flightDTO.ReadFlightDTO {
+func (fUsecase *flightUsecase) GetFlightTableById(id string) flightTableDTO.ResponseFlightTableDTO {
 	//TODO implement me
 	panic("implement me")
 }
@@ -74,6 +70,6 @@ func (fUsecase *flightUsecase) CreateFlight(createFlight flightDTO.CreateFlightD
 	return id, nil
 }
 
-func NewFlightUsecase(FlightService service2.FlightService, ticketService service2.TicketService) *flightUsecase {
+func NewFlightUsecase(FlightService service.FlightService, ticketService service.TicketService) *flightUsecase {
 	return &flightUsecase{FlightService: FlightService, TicketService: ticketService}
 }

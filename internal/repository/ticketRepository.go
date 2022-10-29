@@ -6,19 +6,19 @@ import (
 )
 
 type ticketRepository struct {
-	collection map[string]*entity.Ticket
+	collection map[string]entity.Ticket
 }
 
 var _ Repository = (*ticketRepository)(nil)
 var _ storage.TicketStorage = (*ticketRepository)(nil)
 
-func (tRepo *ticketRepository) GetById(id string) *entity.Ticket {
+func (tRepo *ticketRepository) GetById(id string) entity.Ticket {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (tRepo *ticketRepository) GetAll() []*entity.Ticket {
-	tickets := make([]*entity.Ticket, 0, len(tRepo.collection))
+func (tRepo *ticketRepository) GetAll() []entity.Ticket {
+	tickets := make([]entity.Ticket, 0, len(tRepo.collection))
 	for _, ticket := range tRepo.collection {
 		tickets = append(tickets, ticket)
 	}
@@ -26,7 +26,7 @@ func (tRepo *ticketRepository) GetAll() []*entity.Ticket {
 	return tickets
 }
 
-func (tRepo *ticketRepository) GetAllByFlightId(flightId string) []*entity.Ticket {
+func (tRepo *ticketRepository) GetAllByFlightId(flightId string) []entity.Ticket {
 	//TODO implement me
 	panic("implement me")
 }
@@ -34,17 +34,17 @@ func (tRepo *ticketRepository) GetAllByFlightId(flightId string) []*entity.Ticke
 func (tRepo *ticketRepository) Store(t entity.Ticket) error {
 	_, contains := tRepo.collection[t.Id]
 	if !contains {
-		tRepo.collection[t.Id] = &t
+		tRepo.collection[t.Id] = t
 	}
 
 	return nil
 }
 
-func (tRepo *ticketRepository) DeleteById(id string) (*entity.Ticket, error) {
+func (tRepo *ticketRepository) DeleteById(id string) (entity.Ticket, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
 func NewTicketRepository() *ticketRepository {
-	return &ticketRepository{collection: make(map[string]*entity.Ticket)}
+	return &ticketRepository{collection: make(map[string]entity.Ticket)}
 }

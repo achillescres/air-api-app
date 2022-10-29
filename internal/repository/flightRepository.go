@@ -6,20 +6,20 @@ import (
 )
 
 type flightRepository struct {
-	collection map[string]*entity.Flight
+	collection map[string]entity.Flight
 }
 
 var _ Repository = (*flightRepository)(nil)
 var _ storage.FlightStorage = (*flightRepository)(nil)
 
-func (fRepo *flightRepository) GetById(id string) *entity.Flight {
+func (fRepo *flightRepository) GetById(id string) entity.Flight {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (fRepo *flightRepository) GetAll() []*entity.Flight {
+func (fRepo *flightRepository) GetAll() []entity.Flight {
 	//TODO implement me
-	flights := make([]*entity.Flight, 0, len(fRepo.collection))
+	flights := make([]entity.Flight, 0, len(fRepo.collection))
 	for _, flight := range fRepo.collection {
 		flights = append(flights, flight)
 	}
@@ -30,7 +30,7 @@ func (fRepo *flightRepository) GetAll() []*entity.Flight {
 func (fRepo *flightRepository) Store(f entity.Flight) error {
 	_, contains := fRepo.collection[f.Id]
 	if !contains {
-		fRepo.collection[f.Id] = &f
+		fRepo.collection[f.Id] = f
 	} else {
 		return nil
 	}
@@ -38,11 +38,11 @@ func (fRepo *flightRepository) Store(f entity.Flight) error {
 	return nil
 }
 
-func (fRepo *flightRepository) DeleteById(id string) (*entity.Flight, error) {
+func (fRepo *flightRepository) DeleteById(id string) (entity.Flight, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
 func NewFlightRepository() *flightRepository {
-	return &flightRepository{collection: make(map[string]*entity.Flight)}
+	return &flightRepository{collection: make(map[string]entity.Flight)}
 }

@@ -6,9 +6,9 @@ import (
 )
 
 type FlightService interface {
-	GetFlightById(id string) *entity.Flight
-	GetAllFlights() []*entity.Flight
-	GetAllFlightsMap() map[string]*entity.Flight
+	GetFlightById(id string) entity.Flight
+	GetAllFlights() []entity.Flight
+	GetAllFlightsMap() map[string]entity.Flight
 	CreateFlight(f entity.Flight) error
 	DeleteFlightById(id string) error
 }
@@ -21,17 +21,17 @@ type flightService struct {
 
 var _ FlightService = (*flightService)(nil)
 
-func (fService *flightService) GetFlightById(id string) *entity.Flight {
+func (fService *flightService) GetFlightById(id string) entity.Flight {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (fService *flightService) GetAllFlights() []*entity.Flight {
+func (fService *flightService) GetAllFlights() []entity.Flight {
 	return fService.storage.GetAll()
 }
 
-func (fService *flightService) GetAllFlightsMap() map[string]*entity.Flight {
-	flightsMap := map[string]*entity.Flight{}
+func (fService *flightService) GetAllFlightsMap() map[string]entity.Flight {
+	flightsMap := map[string]entity.Flight{}
 	for _, flight := range fService.storage.GetAll() {
 		flightsMap[flight.Id] = flight
 	}

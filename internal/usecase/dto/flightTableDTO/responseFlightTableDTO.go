@@ -1,19 +1,19 @@
 package flightTableDTO
 
 import (
-	entity2 "api-app/internal/domain/entity"
+	"api-app/internal/domain/entity"
 )
 
 type ResponseFlightTableDTO struct {
-	Id              string            `json:"id"`
-	AirlCode        string            `json:"airlCode"`
-	FltNum          string            `json:"fltNum"`
-	FltDate         string            `json:"fltDate"`
-	OrigIATA        string            `json:"origIata"`
-	DestIATA        string            `json:"destIata"`
-	TotalCash       float64           `json:"totalCash"`
-	CorrectlyParsed bool              `json:"correctlyParsed"`
-	Tickets         []*entity2.Ticket `json:"tickets"`
+	Id              string          `json:"id"`
+	AirlCode        string          `json:"airlCode"`
+	FltNum          string          `json:"fltNum"`
+	FltDate         string          `json:"fltDate"`
+	OrigIATA        string          `json:"origIata"`
+	DestIATA        string          `json:"destIata"`
+	TotalCash       float64         `json:"totalCash"`
+	CorrectlyParsed bool            `json:"correctlyParsed"`
+	Tickets         []entity.Ticket `json:"tickets"`
 }
 
 func NewResponseFlightTableDTO(
@@ -25,7 +25,7 @@ func NewResponseFlightTableDTO(
 	destIATA string,
 	totalCash float64,
 	correctlyParsed bool,
-	tickets []*entity2.Ticket,
+	tickets []entity.Ticket,
 ) *ResponseFlightTableDTO {
 	return &ResponseFlightTableDTO{
 		Id:              id,
@@ -40,7 +40,7 @@ func NewResponseFlightTableDTO(
 	}
 }
 
-func NewResponseFlightTableDTOFromFlight(f entity2.Flight, tickets []*entity2.Ticket) *ResponseFlightTableDTO {
+func NewResponseFlightTableDTOFromFlight(f entity.Flight, tickets []entity.Ticket) *ResponseFlightTableDTO {
 	return &ResponseFlightTableDTO{
 		Id:              f.Id,
 		AirlCode:        f.AirlCode,
