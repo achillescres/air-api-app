@@ -1,11 +1,14 @@
 package main
 
 import (
-	"api-app/internal/infrastructure/handler"
-	parser "api-app/internal/infrastructure/parser/fsParser"
-	"api-app/internal/usecase"
-	"api-app/internal/usecase/composite"
+	"api-app/internal/config"
+	"api-app/internal/domain/service"
+	"api-app/internal/domain/usecase"
+	"api-app/internal/infrastructure/controller/handler/http"
+	"api-app/internal/infrastructure/controller/parser/filesystem"
+	"api-app/internal/infrastructure/repository"
 	"api-app/pkg/logging"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -19,24 +22,29 @@ func init() {
 
 func main() {
 	log.Infoln("Starting...")
-	//conf := config.GetMainConfig()
-	//fmt.Println(conf)
+	log.Infoln("Getting configs")
+	_, appCfg, usecaseCfg, parserCfg, err := config.OnceGetConfigInvokes()
+	if err != nil {
+		log.Fatalf("fatal OnceGetConfigInvokes: %s\n", err.Error())
+	}
 
 	log.Infoln("Building inner layers...")
-	flightService := composite.GenerateFlightComposite()
-	ticketService := composite.GenerateTicketComposite()
+	flightRepo := repository.NewFlightRepository()
+	ticketRepo := repository.NewTicketRepository()
+	flightService := service.NewFlightService(flightRepo)
+	ticketService := service.NewTicketService(ticketRepo)
 
-	flightUc := usecase.NewFlightUsecase(flightService, ticketService)
+	flightUc := usecase.NewFlightUsecase(flightService, ticketService, usecaseCfg)
 	ticketUc := usecase.NewTicketUsecase(ticketService)
 
-	flightHandler := handler.NewFlightHandler(flightUc)
-	//ticketHandler := handler.NewTicketHandler(ticketUc)
+	flightHandler := httpHandler.NewFlightHandler(flightUc)
+	ticketHandler := httpHandler.NewTicketHandler(ticketUc)
 
-	taisParser := parser.NewTaisParser(ticketUc, flightUc)
-	err := taisParser.ParseFile(TAISPATH)
+	taisParser := parser.NewTaisParser(ticketUc, flightUc, parserCfg)
+	err = taisParser.ParseTaisFile()
 
 	if err != nil {
-		log.Errorf("error parsing tais file: %s", err.Error())
+		log.Errorf("error parsing tais file: %s\n", err.Error())
 		return
 	}
 
@@ -46,19 +54,20 @@ func main() {
 	r.GET("/api/getAllFlightTables", flightHandler.GetAllFlightTables)
 
 	r.POST("/api/_parse", func(c *gin.Context) {
-		err := taisParser.ParseFile(TAISPATH)
+		err := taisParser.ParseTaisFile()
 		if err != nil {
-			log.Errorf("error parsing tais file: %s", err.Error())
+			log.Errorf("error parsing tais file: %s\n", err.Error())
 			c.JSON(http.StatusInternalServerError, nil)
 			return
 		}
 	})
 
+	listen := appCfg().Listen
 	err = r.Run(
-		"127.0.0.1:7771",
+		fmt.Sprintf("%s:%s", listen.IP, listen.Port),
 	)
 	if err != nil {
-		log.Fatalf("error can't run server: %s", err.Error())
+		log.Fatalf("error can't run server: %s\n", err.Error())
 		return
 	}
 }

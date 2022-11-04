@@ -4,6 +4,7 @@ import (
 	"api-app/internal/domain/entity"
 	"api-app/internal/domain/storage"
 	"errors"
+	"github.com/google/uuid"
 )
 
 type flightRepository struct {
@@ -28,10 +29,12 @@ func (fRepo *flightRepository) GetAll() []entity.Flight {
 	return flights
 }
 
-func (fRepo *flightRepository) Store(f entity.Flight) error {
-	_, contains := fRepo.collection[f.Id]
+func (fRepo *flightRepository) Store(f entity.FlightView) (entity.Flight, error) {
+	id := uuid.New().String()
+	_, contains := fRepo.collection[id]
 	if !contains {
-		fRepo.collection[f.Id] = f
+		newFlight := entity.FullFlight()
+		fRepo.collection[id] = f
 	} else {
 		return errors.New("error already contains this id")
 	}

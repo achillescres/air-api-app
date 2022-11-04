@@ -3,13 +3,14 @@ package service
 import (
 	"api-app/internal/domain/entity"
 	"api-app/internal/domain/storage"
+	"github.com/google/uuid"
 )
 
 type TicketService interface {
 	GetTicketById(id string) entity.Ticket
 	GetAllTickets() []entity.Ticket
 	GetAllTicketsMap() map[string]entity.Ticket
-	CreateTicket(f entity.Ticket) error
+	CreateTicket(fV entity.TicketView) error
 	DeleteTicketById(id string) error
 }
 
@@ -35,8 +36,9 @@ func (tService *ticketService) GetAllTickets() []entity.Ticket {
 	return tService.storage.GetAll()
 }
 
-func (tService *ticketService) CreateTicket(f entity.Ticket) error {
-	err := tService.storage.Store(f)
+func (tService *ticketService) CreateTicket(fV entity.TicketView) error {
+	id := uuid.New().String()
+	err := tService.storage.Store(*entity.FromTicketView(id, fV))
 	if err != nil {
 		return err
 	}

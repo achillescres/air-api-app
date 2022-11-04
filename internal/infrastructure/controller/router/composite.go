@@ -2,8 +2,8 @@ package router
 
 //func RouterComposite(
 //	r *gin.Engine,
-//	flightHandler handler.FlightHandler,
-//	ticketHandler handler.TicketHandler,
+//	flightHandler controller.FlightHandler,
+//	ticketHandler controller.TicketHandler,
 //) *gin.Engine {
 //	fR := flightRouter(flightHandler)
 //	tR := ticketRouter(ticketHandler)

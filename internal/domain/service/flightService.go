@@ -9,7 +9,7 @@ type FlightService interface {
 	GetFlightById(id string) entity.Flight
 	GetAllFlights() []entity.Flight
 	GetAllFlightsMap() map[string]entity.Flight
-	CreateFlight(f entity.Flight) error
+	CreateFlight(f entity.FlightView) (*entity.Flight, error)
 	DeleteFlightById(id string) error
 }
 
@@ -39,13 +39,9 @@ func (fService *flightService) GetAllFlightsMap() map[string]entity.Flight {
 	return flightsMap
 }
 
-func (fService *flightService) CreateFlight(f entity.Flight) error {
-	err := fService.storage.Store(f)
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (fService *flightService) CreateFlight(flightView entity.FlightView) (*entity.Flight, error) {
+	f, err := fService.storage.Store(flightView)
+	return &f, err
 }
 
 func (fService *flightService) DeleteFlightById(id string) error {
