@@ -2,7 +2,7 @@ package httpHandler
 
 import (
 	"api-app/internal/domain/usecase"
-	"api-app/internal/infrastructure/controller/handler/http/sto"
+	"api-app/internal/infrastructure/controller/handler/sto"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

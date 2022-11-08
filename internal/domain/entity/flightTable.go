@@ -6,7 +6,7 @@ type FlightTable struct {
 }
 
 func NewFlightTable(flight Flight, capacity int) *FlightTable {
-	return &FlightTable{Flight: flight, Tickets: make([]Ticket, 0, capacity)} //TODO config injection
+	return &FlightTable{Flight: flight, Tickets: make([]Ticket, 0, capacity)} //TODO gconfig injection
 }
 
 type FlightTableView struct {

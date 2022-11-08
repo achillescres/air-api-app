@@ -14,47 +14,51 @@ import (
 	"net/http"
 )
 
-const TAISPATH = "C:\\TinyGainAir\\api-app\\external\\tais.txt"
-
 func init() {
 	logging.ConfigureLog()
 }
 
 func main() {
-	log.Infoln("Starting...")
-	log.Infoln("Getting configs")
-	_, appCfg, usecaseCfg, parserCfg, err := config.OnceGetConfigInvokes()
-	if err != nil {
-		log.Fatalf("fatal OnceGetConfigInvokes: %s\n", err.Error())
-	}
-
-	log.Infoln("Building inner layers...")
+	log.Infoln("Building repositories...")
 	flightRepo := repository.NewFlightRepository()
 	ticketRepo := repository.NewTicketRepository()
+
+	log.Infoln("Building services...")
 	flightService := service.NewFlightService(flightRepo)
 	ticketService := service.NewTicketService(ticketRepo)
 
+	log.Infoln("Gathering gconfig...")
+	appCfg := config.App()
+	usecaseCfg := config.Usecase()
+	parserCfg := config.Parser()
+
+	log.Infoln("Building usecases...")
 	flightUc := usecase.NewFlightUsecase(flightService, ticketService, usecaseCfg)
 	ticketUc := usecase.NewTicketUsecase(ticketService)
 
+	log.Infoln("Building controllers:")
+	log.Infoln("Building handlers...")
 	flightHandler := httpHandler.NewFlightHandler(flightUc)
-	ticketHandler := httpHandler.NewTicketHandler(ticketUc)
+	//ticketHandler := httpHandler.NewTicketHandler(ticketUc)
 
+	log.Infoln("Building parsers...")
 	taisParser := parser.NewTaisParser(ticketUc, flightUc, parserCfg)
-	err = taisParser.ParseTaisFile()
-
+	// TODO implement normal parse init
+	err := taisParser.ParseFirstTaisFile()
 	if err != nil {
 		log.Errorf("error parsing tais file: %s\n", err.Error())
 		return
 	}
+	// ---
 
-	log.Infoln("Attaching routers...")
+	log.Infoln("Building routers...")
+	// TODO add routers
 	r := gin.Default()
 
 	r.GET("/api/getAllFlightTables", flightHandler.GetAllFlightTables)
 
 	r.POST("/api/_parse", func(c *gin.Context) {
-		err := taisParser.ParseTaisFile()
+		err := taisParser.ParseFirstTaisFile()
 		if err != nil {
 			log.Errorf("error parsing tais file: %s\n", err.Error())
 			c.JSON(http.StatusInternalServerError, nil)
@@ -62,12 +66,11 @@ func main() {
 		}
 	})
 
-	listen := appCfg().Listen
+	listen := appCfg.HTTP
 	err = r.Run(
 		fmt.Sprintf("%s:%s", listen.IP, listen.Port),
 	)
 	if err != nil {
 		log.Fatalf("error can't run server: %s\n", err.Error())
-		return
 	}
 }

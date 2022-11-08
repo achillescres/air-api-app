@@ -3,7 +3,6 @@ package repository
 import (
 	"api-app/internal/domain/entity"
 	"api-app/internal/domain/storage"
-	"errors"
 	"github.com/google/uuid"
 )
 
@@ -31,15 +30,9 @@ func (fRepo *flightRepository) GetAll() []entity.Flight {
 
 func (fRepo *flightRepository) Store(f entity.FlightView) (entity.Flight, error) {
 	id := uuid.New().String()
-	_, contains := fRepo.collection[id]
-	if !contains {
-		newFlight := entity.FullFlight()
-		fRepo.collection[id] = f
-	} else {
-		return errors.New("error already contains this id")
-	}
-
-	return nil
+	newFlight := entity.FromFlightView(id, f)
+	fRepo.collection[id] = *newFlight
+	return *newFlight, nil
 }
 
 func (fRepo *flightRepository) DeleteById(id string) (entity.Flight, error) {
