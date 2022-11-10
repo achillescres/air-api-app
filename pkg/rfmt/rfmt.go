@@ -11,7 +11,7 @@ type Configuration struct {
 
 var conf = &Configuration{
 	root: "/",
-	api:  "/api/",
+	api:  "/api",
 }
 
 func Conf() Configuration {

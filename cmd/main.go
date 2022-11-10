@@ -6,6 +6,7 @@ import (
 	"api-app/internal/domain/usecase"
 	"api-app/internal/infrastructure/controller/handler/http"
 	"api-app/internal/infrastructure/controller/parser/filesystem"
+	"api-app/internal/infrastructure/controller/router"
 	"api-app/internal/infrastructure/repository"
 	"api-app/pkg/logging"
 	"fmt"
@@ -27,10 +28,10 @@ func main() {
 	flightService := service.NewFlightService(flightRepo)
 	ticketService := service.NewTicketService(ticketRepo)
 
-	log.Infoln("Gathering gconfig...")
+	log.Infoln("Gathering configs...")
 	appCfg := config.App()
 	usecaseCfg := config.Usecase()
-	parserCfg := config.Parser()
+	parserCfg := config.TaisParser()
 
 	log.Infoln("Building usecases...")
 	flightUc := usecase.NewFlightUsecase(flightService, ticketService, usecaseCfg)
@@ -39,7 +40,7 @@ func main() {
 	log.Infoln("Building controllers:")
 	log.Infoln("Building handlers...")
 	flightHandler := httpHandler.NewFlightHandler(flightUc)
-	//ticketHandler := httpHandler.NewTicketHandler(ticketUc)
+	ticketHandler := httpHandler.NewTicketHandler(ticketUc)
 
 	log.Infoln("Building parsers...")
 	taisParser := parser.NewTaisParser(ticketUc, flightUc, parserCfg)
@@ -52,11 +53,12 @@ func main() {
 	// ---
 
 	log.Infoln("Building routers...")
-	// TODO add routers
 	r := gin.Default()
 
-	r.GET("/api/getAllFlightTables", flightHandler.GetAllFlightTables)
+	router.RegisterFlightRouter(r, flightHandler)
+	router.RegisterTicketRouter(r, ticketHandler)
 
+	// TODO think what to do with this
 	r.POST("/api/_parse", func(c *gin.Context) {
 		err := taisParser.ParseFirstTaisFile()
 		if err != nil {

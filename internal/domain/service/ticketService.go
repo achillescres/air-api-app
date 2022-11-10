@@ -9,7 +9,7 @@ import (
 type TicketService interface {
 	GetTicketById(id string) entity.Ticket
 	GetAllTickets() []entity.Ticket
-	GetAllTicketsMap() map[string]entity.Ticket
+	GetAllTicketsMap() (map[string]entity.Ticket, error)
 	CreateTicket(fV entity.TicketView) error
 	DeleteTicketById(id string) error
 }
@@ -22,9 +22,8 @@ type ticketService struct {
 
 var _ TicketService = (*ticketService)(nil)
 
-func (tService *ticketService) GetAllTicketsMap() map[string]entity.Ticket {
-	//TODO implement me
-	panic("implement me")
+func (tService *ticketService) GetAllTicketsMap() (map[string]entity.Ticket, error) {
+	return tService.GetAllTicketsMap()
 }
 
 func (tService *ticketService) GetTicketById(id string) entity.Ticket {

@@ -32,6 +32,7 @@ func NewTaisParser(tUsecase usecase.TicketUsecase, fUsecase usecase.FlightUsecas
 	return &taisParser{tUsecase: tUsecase, fUsecase: fUsecase, cfg: cfg}
 }
 
+// A4 101 2022021312 KRR VKO 19502200 00SU9 0 NN 000151280.00
 func parseFlightRow(row []string) entity.FlightView {
 	correctlyParsed := true
 
@@ -71,12 +72,19 @@ func parseFlightRow(row []string) entity.FlightView {
 	}
 }
 
-func parseTicketRow(flightId string, row []string) entity.TicketView {
+// A4 101 2022021312B Y0100Y 00 0000000001000020000000050000000000000.00
+func (taisPrsr *taisParser) parseTicketRow(flightId string, row []string) entity.TicketView {
 	correctlyParsed := true
 	airlCode := row[0]
 	fltNum := row[1]
 	fltDate := row[2][:7+1]
 	ticketCode := row[3]
+	ticketCapacity, err := strconv.Atoi(row[3][1:5])
+	if err != nil {
+		log.Errorf("error cant atoi ticket capacity: %s\n", err.Error())
+		ticketCapacity = -1
+		correctlyParsed = false
+	}
 	ticketType := string(ticketCode[len(ticketCode)-1])
 	if unicode.IsNumber(rune(ticketType[0])) {
 		ticketCode = "official"
@@ -88,8 +96,8 @@ func parseTicketRow(flightId string, row []string) entity.TicketView {
 		amount = -1
 		correctlyParsed = false
 	}
-	delimeter := 23
-	totalCash, err := strconv.ParseFloat(row[5][delimeter+1:], 32)
+
+	totalCash, err := strconv.ParseFloat(row[5][taisPrsr.cfg.TotalCashDelimiterIndex+1:], 32)
 	if err != nil {
 		log.Errorf("error cant parse ticket total cash: %s\n", err.Error())
 		totalCash = -1
@@ -102,6 +110,7 @@ func parseTicketRow(flightId string, row []string) entity.TicketView {
 		FltNum:          fltNum,
 		FltDate:         fltDate,
 		TicketCode:      ticketCode,
+		TicketCapacity:  ticketCapacity,
 		TicketType:      ticketType,
 		Amount:          amount,
 		TotalCash:       totalCash,
@@ -109,9 +118,9 @@ func parseTicketRow(flightId string, row []string) entity.TicketView {
 	}
 }
 
-func (p *taisParser) ParseFirstTaisFile() error {
+func (taisPrsr *taisParser) ParseFirstTaisFile() error {
 	env := config.Env()
-	taisDirPath := path.Join(env.ProjectPath, p.cfg.TaisDirPath)
+	taisDirPath := path.Join(env.ProjectPath, taisPrsr.cfg.TaisDirPath)
 	inDir, err := os.ReadDir(taisDirPath)
 	if err != nil {
 		log.Fatalf("(WillRemLog)fatal scanning tais directory=%s: %s\n", taisDirPath, err.Error()) // TODO remove fatal drop, add logic to save the system from deprecated data(outer layer work)
@@ -170,7 +179,7 @@ func (p *taisParser) ParseFirstTaisFile() error {
 		switch len(procLine) {
 		case 10: // flight
 			parsedFlight := parseFlightRow(procLine)
-			flight, err := p.fUsecase.CreateFlight(parsedFlight)
+			flight, err := taisPrsr.fUsecase.CreateFlight(parsedFlight)
 			flightId = flight.Id
 			if err != nil {
 				globalErr = err
@@ -178,8 +187,8 @@ func (p *taisParser) ParseFirstTaisFile() error {
 				return err
 			}
 		case 6: // ticket
-			parsedTicket := parseTicketRow(flightId, procLine)
-			err := p.tUsecase.CreateTicket(parsedTicket)
+			parsedTicket := taisPrsr.parseTicketRow(flightId, procLine)
+			err := taisPrsr.tUsecase.CreateTicket(parsedTicket)
 			if err != nil {
 				globalErr = err
 				log.Fatalf("(WillRemLog)fatal creating ticket: %s\n", err.Error()) // TODO remove fatals

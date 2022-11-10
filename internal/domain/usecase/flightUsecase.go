@@ -37,14 +37,14 @@ func (fUc *flightUsecase) GetAllFlightTables() map[string]entity.FlightTable {
 	fTableSTOsMap := map[string]entity.FlightTable{}
 
 	for _, ticket := range tickets {
-		_, contains := fTableSTOsMap[ticket.FlightId]
+		_, contains := fTableSTOsMap[ticket.View.FlightId]
 		if !contains {
-			fTableSTOsMap[ticket.FlightId] = *entity.NewFlightTable(
-				flights[ticket.FlightId],
+			fTableSTOsMap[ticket.View.FlightId] = *entity.NewFlightTable(
+				flights[ticket.View.FlightId],
 				fUc.cfg.DefaultTableCapacity,
 			)
 		}
-		fT, _ := fTableSTOsMap[ticket.FlightId]
+		fT, _ := fTableSTOsMap[ticket.View.FlightId]
 		fT.Tickets = append(fT.Tickets, ticket)
 	}
 

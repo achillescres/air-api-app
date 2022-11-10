@@ -6,13 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func flightRouter(handler httpHandler.FlightHandler) *gin.Engine {
-	r := gin.Default()
-
+func RegisterFlightRouter(r *gin.Engine, handler httpHandler.FlightHandler) {
 	r.GET(
-		rfmt.JoinApi("getAllFlightTables"),
+		rfmt.JoinApiRoute("getAllFlightTables"),
 		handler.GetAllFlightTables,
 	)
-
-	return r
 }

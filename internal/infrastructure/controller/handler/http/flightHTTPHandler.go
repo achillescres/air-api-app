@@ -2,7 +2,7 @@ package httpHandler
 
 import (
 	"api-app/internal/domain/usecase"
-	"api-app/internal/infrastructure/controller/handler/sto"
+	"api-app/internal/infrastructure/controller/sto"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -14,17 +14,17 @@ type FlightHandler interface {
 var _ Handler = (*FlightHandler)(nil)
 
 type flightHandler struct {
-	fUc usecase.FlightUsecase
+	flightUsecase usecase.FlightUsecase
 }
 
 func NewFlightHandler(fUc usecase.FlightUsecase) FlightHandler {
-	return &flightHandler{fUc: fUc}
+	return &flightHandler{flightUsecase: fUc}
 }
 
 var _ FlightHandler = (*flightHandler)(nil)
 
 func (fHnd *flightHandler) GetAllFlightTables(c *gin.Context) {
-	flightTables := fHnd.fUc.GetAllFlightTables()
+	flightTables := fHnd.flightUsecase.GetAllFlightTables()
 	flightTableSTOs := map[string]sto.FlightTableSTO{}
 	for _, fT := range flightTables {
 		flightTableSTOs[fT.Id] = *sto.ToFLightTableSTO(fT)

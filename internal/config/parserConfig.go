@@ -8,7 +8,8 @@ import (
 const taisParserConfigFile = "parser.config.yaml"
 
 type TaisParserConfig struct {
-	TaisDirPath string `yaml:"taisDirPath" env-required:"true"`
+	TaisDirPath             string `yaml:"taisDirPath" env-required:"true"`
+	TotalCashDelimiterIndex int    `yaml:"totalCashDelimiterIndex" env-required:"true"`
 }
 
 var (
@@ -16,7 +17,7 @@ var (
 	loadTaisParserCfgOnce = sync.Once{}
 )
 
-func Parser() TaisParserConfig {
+func TaisParser() TaisParserConfig {
 	loadTaisParserCfgOnce.Do(func() {
 		taisParserCfgPath := path.Join(Env().ConfigAbsPath, taisParserConfigFile)
 		readConfig(taisParserCfgPath, taisParserCfgInst)
