@@ -1,6 +1,7 @@
 package httpHandler
 
 import (
+	"api-app/internal/domain/entity"
 	"api-app/internal/domain/usecase"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -8,31 +9,29 @@ import (
 )
 
 type TicketHandler interface {
+	Handler[entity.Ticket]
 	GetAllTicketsMap(c *gin.Context)
 }
-
-var _ Handler = (*TicketHandler)(nil)
 
 type ticketHandler struct {
 	ticketUsecase usecase.TicketUsecase
 }
 
+var _ TicketHandler = (*ticketHandler)(nil)
+
 func (tH *ticketHandler) GetAllTicketsMap(c *gin.Context) {
-	ticketsMap, err := tH.ticketUsecase.GetAllTicketsMap()
+	ticketsMap, err := tH.ticketUsecase.GetAllByMap()
 	if err != nil {
 		log.Errorf("error TicketUsecase.GetAllTicketsMap: %s", err.Error())
 		err = c.Error(err)
 		if err != nil {
 			log.Errorf("error puting error to gin context: %s", err.Error())
 		}
-
 	}
 
 	c.JSON(http.StatusOK, ticketsMap)
 }
 
-var _ TicketHandler = (*ticketHandler)(nil)
-
-func NewTicketHandler(tUc usecase.TicketUsecase) *ticketHandler {
+func NewTicketHandler(tUc usecase.TicketUsecase) TicketHandler {
 	return &ticketHandler{ticketUsecase: tUc}
 }

@@ -1,7 +1,16 @@
 package entity
 
+import "api-app/pkg/object/oid"
+
+type Ticket struct {
+	Id   oid.Id `json:"id"`
+	View TicketView
+}
+
+var _ Entity = (*Ticket)(nil)
+
 type TicketView struct {
-	FlightId string `json:"flightId"`
+	FlightId oid.Id `json:"flightId"`
 
 	AirlCode string `json:"airlCode"`
 
@@ -19,16 +28,11 @@ type TicketView struct {
 	CorrectlyParsed bool `json:"correct"`
 }
 
-type Ticket struct {
-	Id   string
-	View TicketView
-}
-
 func ToTicketView(t Ticket) TicketView {
 	return t.View
 }
 
-func FromTicketView(id string, tV TicketView) *Ticket {
+func FromTicketView(id oid.Id, tV TicketView) *Ticket {
 	return &Ticket{
 		Id:   id,
 		View: tV,

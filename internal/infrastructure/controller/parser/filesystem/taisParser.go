@@ -4,6 +4,7 @@ import (
 	"api-app/internal/config"
 	"api-app/internal/domain/entity"
 	"api-app/internal/domain/usecase"
+	"api-app/pkg/object/oid"
 	"bufio"
 	"errors"
 	"fmt"
@@ -73,7 +74,7 @@ func parseFlightRow(row []string) entity.FlightView {
 }
 
 // A4 101 2022021312B Y0100Y 00 0000000001000020000000050000000000000.00
-func (taisPrsr *taisParser) parseTicketRow(flightId string, row []string) entity.TicketView {
+func (taisPrsr *taisParser) parseTicketRow(flightId oid.Id, row []string) entity.TicketView {
 	correctlyParsed := true
 	airlCode := row[0]
 	fltNum := row[1]
@@ -171,7 +172,7 @@ func (taisPrsr *taisParser) ParseFirstTaisFile() error {
 	}
 
 	var (
-		flightId  string
+		flightId  oid.Id
 		globalErr error = nil
 	)
 	for _, row := range rows {
@@ -179,7 +180,7 @@ func (taisPrsr *taisParser) ParseFirstTaisFile() error {
 		switch len(procLine) {
 		case 10: // flight
 			parsedFlight := parseFlightRow(procLine)
-			flight, err := taisPrsr.fUsecase.CreateFlight(parsedFlight)
+			flight, err := taisPrsr.fUsecase.Store(parsedFlight)
 			flightId = flight.Id
 			if err != nil {
 				globalErr = err
@@ -188,7 +189,7 @@ func (taisPrsr *taisParser) ParseFirstTaisFile() error {
 			}
 		case 6: // ticket
 			parsedTicket := taisPrsr.parseTicketRow(flightId, procLine)
-			err := taisPrsr.tUsecase.CreateTicket(parsedTicket)
+			_, err := taisPrsr.tUsecase.Store(parsedTicket)
 			if err != nil {
 				globalErr = err
 				log.Fatalf("(WillRemLog)fatal creating ticket: %s\n", err.Error()) // TODO remove fatals

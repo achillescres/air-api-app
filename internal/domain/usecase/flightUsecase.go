@@ -3,16 +3,15 @@ package usecase
 import (
 	"api-app/internal/config"
 	"api-app/internal/domain/entity"
+	"api-app/internal/domain/object"
 	"api-app/internal/domain/service"
+	"api-app/pkg/object/oid"
 )
 
 type FlightUsecase interface {
-	service.FlightService
-	service.TicketService
-	GetAllFlightTables() map[string]entity.FlightTable
+	Usecase[entity.Flight, entity.FlightView]
+	GetAllFlightTables() (map[oid.Id]object.FlightTable, error)
 }
-
-var _ Usecase = (*FlightUsecase)(nil)
 
 type flightUsecase struct {
 	service.FlightService
@@ -22,24 +21,22 @@ type flightUsecase struct {
 
 var _ FlightUsecase = (*flightUsecase)(nil)
 
-func NewFlightUsecase(
-	flightService service.FlightService,
-	ticketService service.TicketService,
-	cfg config.UsecaseConfig,
-) FlightUsecase {
-	return &flightUsecase{FlightService: flightService, TicketService: ticketService, cfg: cfg}
-}
+func (fUc *flightUsecase) GetAllFlightTables() (map[oid.Id]object.FlightTable, error) {
+	flights, err := fUc.FlightService.GetAllByMap()
+	if err != nil {
+		return nil, err
+	}
+	tickets, err := fUc.TicketService.GetAll()
+	if err != nil {
+		return nil, err
+	}
 
-func (fUc *flightUsecase) GetAllFlightTables() map[string]entity.FlightTable {
-	flights := fUc.GetAllFlightsMap()
-	tickets := fUc.GetAllTickets()
-
-	fTableSTOsMap := map[string]entity.FlightTable{}
+	fTableSTOsMap := map[oid.Id]object.FlightTable{}
 
 	for _, ticket := range tickets {
 		_, contains := fTableSTOsMap[ticket.View.FlightId]
 		if !contains {
-			fTableSTOsMap[ticket.View.FlightId] = *entity.NewFlightTable(
+			fTableSTOsMap[ticket.View.FlightId] = *object.NewFlightTable(
 				flights[ticket.View.FlightId],
 				fUc.cfg.DefaultTableCapacity,
 			)
@@ -48,5 +45,13 @@ func (fUc *flightUsecase) GetAllFlightTables() map[string]entity.FlightTable {
 		fT.Tickets = append(fT.Tickets, ticket)
 	}
 
-	return fTableSTOsMap
+	return fTableSTOsMap, nil
+}
+
+func NewFlightUsecase(
+	flightService service.FlightService,
+	ticketService service.TicketService,
+	cfg config.UsecaseConfig,
+) FlightUsecase {
+	return &flightUsecase{FlightService: flightService, TicketService: ticketService, cfg: cfg}
 }

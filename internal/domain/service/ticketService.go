@@ -3,18 +3,12 @@ package service
 import (
 	"api-app/internal/domain/entity"
 	"api-app/internal/domain/storage"
-	"github.com/google/uuid"
+	"api-app/pkg/object/oid"
 )
 
 type TicketService interface {
-	GetTicketById(id string) entity.Ticket
-	GetAllTickets() []entity.Ticket
-	GetAllTicketsMap() (map[string]entity.Ticket, error)
-	CreateTicket(fV entity.TicketView) error
-	DeleteTicketById(id string) error
+	Service[entity.Ticket, entity.TicketView]
 }
-
-var _ Service = (*TicketService)(nil)
 
 type ticketService struct {
 	storage storage.TicketStorage
@@ -22,34 +16,35 @@ type ticketService struct {
 
 var _ TicketService = (*ticketService)(nil)
 
-func (tService *ticketService) GetAllTicketsMap() (map[string]entity.Ticket, error) {
-	return tService.GetAllTicketsMap()
+func (tService *ticketService) GetAllByMap() (map[oid.Id]entity.Ticket, error) {
+	ticketsMap := map[oid.Id]entity.Ticket{}
+	tickets, err := tService.storage.GetAll()
+	if err != nil {
+		return nil, err
+	}
+	for _, ticket := range tickets {
+		ticketsMap[ticket.Id] = ticket
+	}
+
+	return ticketsMap, nil
 }
 
-func (tService *ticketService) GetTicketById(id string) entity.Ticket {
-	//TODO implement me
-	panic("implement me")
+func (tService *ticketService) GetById(id oid.Id) (entity.Ticket, error) {
+	return tService.GetById(id)
 }
 
-func (tService *ticketService) GetAllTickets() []entity.Ticket {
+func (tService *ticketService) GetAll() ([]entity.Ticket, error) {
 	return tService.storage.GetAll()
 }
 
-func (tService *ticketService) CreateTicket(fV entity.TicketView) error {
-	id := uuid.New().String()
-	err := tService.storage.Store(*entity.FromTicketView(id, fV))
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (tService *ticketService) Store(tV entity.TicketView) (entity.Ticket, error) {
+	return tService.storage.Store(tV)
 }
 
-func (tService *ticketService) DeleteTicketById(id string) error {
-	//TODO implement me
-	panic("implement me")
+func (tService *ticketService) DeleteById(id oid.Id) (entity.Ticket, error) {
+	return tService.storage.DeleteById(id)
 }
 
-func NewTicketService(storage storage.TicketStorage) *ticketService {
+func NewTicketService(storage storage.TicketStorage) TicketService {
 	return &ticketService{storage: storage}
 }

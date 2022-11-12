@@ -1,6 +1,15 @@
 package entity
 
-import "time"
+import (
+	"time"
+)
+
+type Flight struct {
+	Id   id.Id `json:"id"`
+	View FlightView
+}
+
+var _ Entity = (*Flight)(nil)
 
 type FlightView struct {
 	AirlCode string `json:"airlCode"`
@@ -19,12 +28,7 @@ type FlightView struct {
 	CorrectlyParsed bool `json:"correctlyParsed"`
 }
 
-type Flight struct {
-	Id   string `json:"id"`
-	View FlightView
-}
-
-func FromFlightView(id string, view FlightView) *Flight {
+func FromFlightView(id id.Id, view FlightView) *Flight {
 	return &Flight{
 		Id:   id,
 		View: view,

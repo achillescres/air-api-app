@@ -20,31 +20,42 @@ func init() {
 }
 
 func main() {
-	log.Infoln("Building repositories...")
-	flightRepo := repository.NewFlightRepository()
-	ticketRepo := repository.NewTicketRepository()
-
-	log.Infoln("Building services...")
-	flightService := service.NewFlightService(flightRepo)
-	ticketService := service.NewTicketService(ticketRepo)
-
 	log.Infoln("Gathering configs...")
 	appCfg := config.App()
 	usecaseCfg := config.Usecase()
 	parserCfg := config.TaisParser()
+	log.Infoln("Success")
+
+	log.Infoln("Building repositories...")
+	flightRepo := repository.NewFlightRepository()
+	ticketRepo := repository.NewTicketRepository()
+	userRepo := repository.NewUserRepository()
+	log.Infoln("Success")
+
+	log.Infoln("Building services...")
+	flightService := service.NewFlightService(flightRepo)
+	ticketService := service.NewTicketService(ticketRepo)
+	userService := service.NewUserService(userRepo)
+	log.Infoln("Success")
 
 	log.Infoln("Building usecases...")
 	flightUc := usecase.NewFlightUsecase(flightService, ticketService, usecaseCfg)
 	ticketUc := usecase.NewTicketUsecase(ticketService)
+	userUc := usecase.NewUserUsecase(userService)
+	log.Infoln("Success")
 
 	log.Infoln("Building controllers:")
 	log.Infoln("Building handlers...")
 	flightHandler := httpHandler.NewFlightHandler(flightUc)
 	ticketHandler := httpHandler.NewTicketHandler(ticketUc)
+	userHandler := httpHandler.NewUserHandler(userUc)
+	log.Infoln("Success")
 
 	log.Infoln("Building parsers...")
 	taisParser := parser.NewTaisParser(ticketUc, flightUc, parserCfg)
-	// TODO implement normal parse init
+	log.Infoln("Success")
+
+	// TODO implement normal initial parse
 	err := taisParser.ParseFirstTaisFile()
 	if err != nil {
 		log.Errorf("error parsing tais file: %s\n", err.Error())
@@ -57,9 +68,9 @@ func main() {
 
 	router.RegisterFlightRouter(r, flightHandler)
 	router.RegisterTicketRouter(r, ticketHandler)
+	router.RegisterUserRouter(r, userHandler)
 
-	// TODO think what to do with this
-	r.POST("/api/_parse", func(c *gin.Context) {
+	r.POST("/api/_parse", func(c *gin.Context) { // TODO think what to do with this
 		err := taisParser.ParseFirstTaisFile()
 		if err != nil {
 			log.Errorf("error parsing tais file: %s\n", err.Error())

@@ -1,3 +1,6 @@
 package httpHandler
 
-type Handler interface{}
+import "api-app/internal/domain/entity"
+
+type Handler[Entity entity.Entity] interface {
+}

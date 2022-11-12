@@ -3,17 +3,12 @@ package service
 import (
 	"api-app/internal/domain/entity"
 	"api-app/internal/domain/storage"
+	"api-app/pkg/object/oid"
 )
 
 type FlightService interface {
-	GetFlightById(id string) entity.Flight
-	GetAllFlights() []entity.Flight
-	GetAllFlightsMap() map[string]entity.Flight
-	CreateFlight(f entity.FlightView) (*entity.Flight, error)
-	DeleteFlightById(id string) error
+	Service[entity.Flight, entity.FlightView]
 }
-
-var _ Service = (*FlightService)(nil)
 
 type flightService struct {
 	storage storage.FlightStorage
@@ -21,34 +16,37 @@ type flightService struct {
 
 var _ FlightService = (*flightService)(nil)
 
-func (fService *flightService) GetFlightById(id string) entity.Flight {
+func (fService *flightService) GetById(id oid.Id) (entity.Flight, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (fService *flightService) GetAllFlights() []entity.Flight {
+func (fService *flightService) GetAll() ([]entity.Flight, error) {
 	return fService.storage.GetAll()
 }
 
-func (fService *flightService) GetAllFlightsMap() map[string]entity.Flight {
-	flightsMap := map[string]entity.Flight{}
-	for _, flight := range fService.storage.GetAll() {
+func (fService *flightService) GetAllByMap() (map[oid.Id]entity.Flight, error) {
+	flightsMap := map[oid.Id]entity.Flight{}
+	flights, err := fService.storage.GetAll()
+	if err != nil {
+		return nil, err
+	}
+	for _, flight := range flights {
 		flightsMap[flight.Id] = flight
 	}
 
-	return flightsMap
+	return flightsMap, nil
 }
 
-func (fService *flightService) CreateFlight(flightView entity.FlightView) (*entity.Flight, error) {
+func (fService *flightService) Store(flightView entity.FlightView) (entity.Flight, error) {
 	f, err := fService.storage.Store(flightView)
-	return &f, err
+	return f, err
 }
 
-func (fService *flightService) DeleteFlightById(id string) error {
-	//TODO implement me
-	panic("implement me")
+func (fService *flightService) DeleteById(id oid.Id) (entity.Flight, error) {
+	return fService.storage.DeleteById(id)
 }
 
-func NewFlightService(storage storage.FlightStorage) *flightService {
+func NewFlightService(storage storage.FlightStorage) FlightService {
 	return &flightService{storage: storage}
 }

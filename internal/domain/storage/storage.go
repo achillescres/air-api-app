@@ -1,11 +1,13 @@
 package storage
 
-type Storage interface{}
+import (
+	"api-app/internal/domain/entity"
+	"api-app/pkg/object/oid"
+)
 
-//type MyMockStorage interface {
-//	Storage
-//	GetById(id string) *entity.
-//	GetAll() []*entity.
-//	Store(f entity.) error
-//	DeleteById(id string) (*entity., error)
-//}
+type Storage[Entity entity.Entity, View entity.View] interface {
+	GetById(id oid.Id) (Entity, error)
+	GetAll() ([]Entity, error)
+	Store(f View) (Entity, error)
+	DeleteById(id oid.Id) (Entity, error)
+}
