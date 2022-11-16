@@ -1,34 +1,34 @@
 package entity
 
 import (
+	"api-app/pkg/object/oid"
 	"time"
 )
 
 type Flight struct {
-	Id   id.Id `json:"id"`
-	View FlightView
+	Entity
+	Id   oid.Id     `json:"id" binding:"required"`
+	View FlightView `json:"view" binding:"required"`
 }
-
-var _ Entity = (*Flight)(nil)
 
 type FlightView struct {
-	AirlCode string `json:"airlCode"`
-
-	FltNum  string `json:"fltNum"`
-	FltDate string `json:"fltDate"`
-
-	OrigIATA string `json:"origIata"`
-	DestIATA string `json:"destIata"`
-
-	DepartureTime time.Time `json:"departureTime"`
-	ArriveTime    time.Time `json:"arriveTime"`
-
-	TotalCash float64 `json:"totalCash"`
-
-	CorrectlyParsed bool `json:"correctlyParsed"`
+	View
+	AirlCode        string    `json:"airlCode" binding:"required"`
+	FltNum          string    `json:"fltNum" binding:"required"`
+	FltDate         string    `json:"fltDate" binding:"required"`
+	OrigIATA        string    `json:"origIata" binding:"required"`
+	DestIATA        string    `json:"destIata" binding:"required"`
+	DepartureTime   time.Time `json:"departureTime" binding:"required"`
+	ArriveTime      time.Time `json:"arriveTime" binding:"required"`
+	TotalCash       float64   `json:"totalCash" binding:"required"`
+	CorrectlyParsed bool      `json:"correctlyParsed" binding:"required"`
 }
 
-func FromFlightView(id id.Id, view FlightView) *Flight {
+func NewFlightView(airlCode string, fltNum string, fltDate string, origIATA string, destIATA string, departureTime time.Time, arriveTime time.Time, totalCash float64, correctlyParsed bool) *FlightView {
+	return &FlightView{AirlCode: airlCode, FltNum: fltNum, FltDate: fltDate, OrigIATA: origIATA, DestIATA: destIATA, DepartureTime: departureTime, ArriveTime: arriveTime, TotalCash: totalCash, CorrectlyParsed: correctlyParsed}
+}
+
+func FromFlightView(id oid.Id, view FlightView) *Flight {
 	return &Flight{
 		Id:   id,
 		View: view,

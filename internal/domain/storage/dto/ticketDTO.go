@@ -1,15 +1,12 @@
-package entity
+package dto
 
-import "api-app/pkg/object/oid"
+import (
+	"api-app/internal/domain/entity"
+	"api-app/pkg/object/oid"
+)
 
-type Ticket struct {
-	Entity
-	Id   oid.Id     `json:"id" binding:"required"`
-	View TicketView `json:"view" binding:"required"`
-}
-
-type TicketView struct {
-	View
+type TicketCreate struct {
+	Create
 	FlightId        oid.Id  `json:"flightId" binding:"required"`
 	AirlCode        string  `json:"airlCode" binding:"required"`
 	FltNum          string  `json:"fltNum" binding:"required"`
@@ -22,13 +19,17 @@ type TicketView struct {
 	CorrectlyParsed bool    `json:"correct" binding:"required"`
 }
 
-func ToTicketView(t Ticket) TicketView {
-	return t.View
-}
-
-func FromTicketView(id oid.Id, tV TicketView) *Ticket {
-	return &Ticket{
-		Id:   id,
-		View: tV,
+func (tC *TicketCreate) ToTicketView() *entity.TicketView {
+	return &entity.TicketView{
+		FlightId:        tC.FlightId,
+		AirlCode:        tC.AirlCode,
+		FltNum:          tC.FltNum,
+		FltDate:         tC.FltDate,
+		TicketCode:      tC.TicketCode,
+		TicketCapacity:  tC.TicketCapacity,
+		TicketType:      tC.TicketType,
+		Amount:          tC.Amount,
+		TotalCash:       tC.TotalCash,
+		CorrectlyParsed: tC.CorrectlyParsed,
 	}
 }

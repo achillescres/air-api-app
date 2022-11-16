@@ -5,12 +5,14 @@ import (
 	"api-app/internal/domain/entity"
 	"api-app/internal/domain/object"
 	"api-app/internal/domain/service"
+	"api-app/internal/domain/storage/dto"
 	"api-app/pkg/object/oid"
+	"context"
 )
 
 type FlightUsecase interface {
-	Usecase[entity.Flight, entity.FlightView]
-	GetAllFlightTables() (map[oid.Id]object.FlightTable, error)
+	Usecase[entity.Flight, entity.FlightView, dto.FLightCreate]
+	GetAllFlightTables(ctx context.Context) (map[oid.Id]object.FlightTable, error)
 }
 
 type flightUsecase struct {
@@ -21,12 +23,12 @@ type flightUsecase struct {
 
 var _ FlightUsecase = (*flightUsecase)(nil)
 
-func (fUc *flightUsecase) GetAllFlightTables() (map[oid.Id]object.FlightTable, error) {
-	flights, err := fUc.FlightService.GetAllByMap()
+func (fUc *flightUsecase) GetAllFlightTables(ctx context.Context) (map[oid.Id]object.FlightTable, error) {
+	flights, err := fUc.FlightService.GetAllByMap(ctx)
 	if err != nil {
 		return nil, err
 	}
-	tickets, err := fUc.TicketService.GetAll()
+	tickets, err := fUc.TicketService.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}

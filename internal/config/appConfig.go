@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-const appConfigFile = "app.config.yaml"
+const appConfigFile = "application.config.yaml"
 
 // AppConfig App
 type AppConfig struct {

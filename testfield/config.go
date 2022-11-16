@@ -1,11 +1,15 @@
 package main
 
-import (
-	"fmt"
-	"os"
-)
+import "fmt"
+
+type t struct {
+	a int
+	s string
+}
 
 func main() {
-	s, _ := os.Getwd()
-	fmt.Println(s)
+	r := t{
+		a: 1,
+	}
+	fmt.Println(r)
 }

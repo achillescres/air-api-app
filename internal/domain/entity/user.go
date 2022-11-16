@@ -1,22 +1,24 @@
 package entity
 
+import "api-app/pkg/object/oid"
+
 type User struct {
-	Id   id.Id `json:"id"`
-	View UserView
+	Entity
+	Id   oid.Id   `json:"id" binding:"required"`
+	View UserView `json:"view" binding:"required"`
 }
 
-var _ Entity = (*User)(nil)
-
 type UserView struct {
-	Login          string `json:"login"`
-	HashedPassword string `json:"hashedPassword"`
+	View
+	Login          string `json:"login" binding:"required"`
+	HashedPassword string `json:"hashedPassword" binding:"required"`
 }
 
 func ToUserView(u User) UserView {
 	return u.View
 }
 
-func FromUserView(id id.Id, uV UserView) *User {
+func FromUserView(id oid.Id, uV UserView) *User {
 	return &User{
 		Id:   id,
 		View: uV,

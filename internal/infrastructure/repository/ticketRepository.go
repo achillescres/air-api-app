@@ -1,55 +1,51 @@
 package repository
 
 import (
+	"api-app/internal/config"
 	"api-app/internal/domain/entity"
 	"api-app/internal/domain/storage"
+	"api-app/internal/domain/storage/dto"
+	"api-app/pkg/db/postgresql"
 	"api-app/pkg/object/oid"
+	"context"
 )
 
 type TicketRepository interface {
-	storage.Storage[entity.Ticket, entity.TicketView]
+	storage.Storage[entity.Ticket, entity.TicketView, dto.TicketCreate]
 }
 
 type ticketRepository struct {
-	collection map[oid.Id]entity.Ticket
+	pool postgresql.Pool
+	cfg  config.DBConfig
 }
 
 var _ storage.TicketStorage = (*ticketRepository)(nil)
 
-func (tRepo *ticketRepository) GetById(id oid.Id) (entity.Ticket, error) {
-	//TODO implement me
+func NewTicketRepository(pool postgresql.Pool, cfg config.DBConfig) TicketRepository {
+	return &ticketRepository{pool: pool, cfg: cfg}
+}
+
+func (tRepo *ticketRepository) GetById(ctx context.Context, id oid.Id) (entity.Ticket, error) {
+	// TODO implement me
 	panic("implement me")
 }
 
-func (tRepo *ticketRepository) GetAll() ([]entity.Ticket, error) {
-	tickets := make([]entity.Ticket, 0, len(tRepo.collection))
-	for _, ticket := range tRepo.collection {
-		tickets = append(tickets, ticket)
-	}
-
-	return tickets, nil
-}
-
-func (tRepo *ticketRepository) GetAllByFlightId(flightId oid.Id) ([]entity.Ticket, error) {
-	//TODO implement me
+func (tRepo *ticketRepository) GetAll(ctx context.Context) ([]entity.Ticket, error) {
+	// TODO implement me
 	panic("implement me")
 }
 
-func (tRepo *ticketRepository) Store(t entity.TicketView) (entity.Ticket, error) {
-	id := oid.NewId()
-	_, contains := tRepo.collection[id]
-	if !contains {
-		tRepo.collection[id] = *entity.FromTicketView(id, t)
-	}
-
-	return tRepo.collection[id], nil
-}
-
-func (tRepo *ticketRepository) DeleteById(id oid.Id) (entity.Ticket, error) {
-	//TODO implement me
+func (tRepo *ticketRepository) GetAllByFlightId(ctx context.Context, flightId oid.Id) ([]entity.Ticket, error) {
+	// TODO implement me
 	panic("implement me")
 }
 
-func NewTicketRepository() TicketRepository {
-	return &ticketRepository{collection: make(map[oid.Id]entity.Ticket)}
+func (tRepo *ticketRepository) Store(ctx context.Context, tC dto.TicketCreate) (entity.Ticket, error) {
+	// TODO impl me
+	panic("implement me")
+}
+
+func (tRepo *ticketRepository) DeleteById(ctx context.Context, id oid.Id) (entity.Ticket, error) {
+	// TODO implement me
+	panic("implement me")
 }

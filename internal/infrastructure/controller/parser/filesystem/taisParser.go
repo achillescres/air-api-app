@@ -2,10 +2,11 @@ package parser
 
 import (
 	"api-app/internal/config"
-	"api-app/internal/domain/entity"
+	"api-app/internal/domain/storage/dto"
 	"api-app/internal/domain/usecase"
 	"api-app/pkg/object/oid"
 	"bufio"
+	"context"
 	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
@@ -18,7 +19,7 @@ import (
 )
 
 type TaisParser interface {
-	ParseFirstTaisFile() error
+	ParseFirstTaisFile(ctx context.Context) error
 }
 
 type taisParser struct {
@@ -29,12 +30,12 @@ type taisParser struct {
 
 var _ TaisParser = (*taisParser)(nil)
 
-func NewTaisParser(tUsecase usecase.TicketUsecase, fUsecase usecase.FlightUsecase, cfg config.TaisParserConfig) *taisParser {
+func NewTaisParser(tUsecase usecase.TicketUsecase, fUsecase usecase.FlightUsecase, cfg config.TaisParserConfig) TaisParser {
 	return &taisParser{tUsecase: tUsecase, fUsecase: fUsecase, cfg: cfg}
 }
 
 // A4 101 2022021312 KRR VKO 19502200 00SU9 0 NN 000151280.00
-func parseFlightRow(row []string) entity.FlightView {
+func parseFlightRow(row []string) *dto.FLightCreate {
 	correctlyParsed := true
 
 	airlCode := row[0]
@@ -60,7 +61,7 @@ func parseFlightRow(row []string) entity.FlightView {
 		correctlyParsed = false
 	}
 
-	return entity.FlightView{
+	return &dto.FLightCreate{
 		AirlCode:        airlCode,
 		FltNum:          fltNum,
 		FltDate:         fltDate,
@@ -74,7 +75,7 @@ func parseFlightRow(row []string) entity.FlightView {
 }
 
 // A4 101 2022021312B Y0100Y 00 0000000001000020000000050000000000000.00
-func (taisPrsr *taisParser) parseTicketRow(flightId oid.Id, row []string) entity.TicketView {
+func (taisPrsr *taisParser) parseTicketRow(flightId oid.Id, row []string) *dto.TicketCreate {
 	correctlyParsed := true
 	airlCode := row[0]
 	fltNum := row[1]
@@ -105,7 +106,7 @@ func (taisPrsr *taisParser) parseTicketRow(flightId oid.Id, row []string) entity
 		correctlyParsed = false
 	}
 
-	return entity.TicketView{
+	return &dto.TicketCreate{
 		FlightId:        flightId,
 		AirlCode:        airlCode,
 		FltNum:          fltNum,
@@ -119,7 +120,7 @@ func (taisPrsr *taisParser) parseTicketRow(flightId oid.Id, row []string) entity
 	}
 }
 
-func (taisPrsr *taisParser) ParseFirstTaisFile() error {
+func (taisPrsr *taisParser) ParseFirstTaisFile(ctx context.Context) error {
 	env := config.Env()
 	taisDirPath := path.Join(env.ProjectPath, taisPrsr.cfg.TaisDirPath)
 	inDir, err := os.ReadDir(taisDirPath)
@@ -180,7 +181,7 @@ func (taisPrsr *taisParser) ParseFirstTaisFile() error {
 		switch len(procLine) {
 		case 10: // flight
 			parsedFlight := parseFlightRow(procLine)
-			flight, err := taisPrsr.fUsecase.Store(parsedFlight)
+			flight, err := taisPrsr.fUsecase.Store(ctx, *parsedFlight)
 			flightId = flight.Id
 			if err != nil {
 				globalErr = err
@@ -189,7 +190,7 @@ func (taisPrsr *taisParser) ParseFirstTaisFile() error {
 			}
 		case 6: // ticket
 			parsedTicket := taisPrsr.parseTicketRow(flightId, procLine)
-			_, err := taisPrsr.tUsecase.Store(parsedTicket)
+			_, err := taisPrsr.tUsecase.Store(ctx, *parsedTicket)
 			if err != nil {
 				globalErr = err
 				log.Fatalf("(WillRemLog)fatal creating ticket: %s\n", err.Error()) // TODO remove fatals

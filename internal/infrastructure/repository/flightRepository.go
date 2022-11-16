@@ -1,45 +1,44 @@
 package repository
 
 import (
+	"api-app/internal/config"
 	"api-app/internal/domain/entity"
 	"api-app/internal/domain/storage"
+	"api-app/internal/domain/storage/dto"
+	"api-app/pkg/db/postgresql"
 	"api-app/pkg/object/oid"
+	"context"
 )
 
-type FLightRepository storage.Storage[entity.Flight, entity.FlightView]
+type FlightRepository storage.Storage[entity.Flight, entity.FlightView, dto.FLightCreate]
 
 type flightRepository struct {
-	collection map[oid.Id]entity.Flight
+	pool postgresql.Pool
+	cfg  config.DBConfig
 }
 
-var _ FLightRepository = (*flightRepository)(nil)
+var _ FlightRepository = (*flightRepository)(nil)
 
-func (fRepo *flightRepository) GetById(id oid.Id) (entity.Flight, error) {
-	//TODO implement me
+func NewFlightRepository(pool postgresql.Pool, cfg config.DBConfig) FlightRepository {
+	return &flightRepository{pool: pool, cfg: cfg}
+}
+
+func (fRepo *flightRepository) GetById(ctx context.Context, id oid.Id) (entity.Flight, error) {
+	// TODO implement me
 	panic("implement me")
 }
 
-func (fRepo *flightRepository) GetAll() ([]entity.Flight, error) {
-	flights := make([]entity.Flight, 0, len(fRepo.collection))
-	for _, flight := range fRepo.collection {
-		flights = append(flights, flight)
-	}
-
-	return flights, nil
+func (fRepo *flightRepository) GetAll(ctx context.Context) ([]entity.Flight, error) {
+	// TODO impl me
+	panic("impl me")
 }
 
-func (fRepo *flightRepository) Store(f entity.FlightView) (entity.Flight, error) {
-	id := oid.NewId()
-	newFlight := entity.FromFlightView(id, f)
-	fRepo.collection[id] = *newFlight
-	return *newFlight, nil
+func (fRepo *flightRepository) Store(ctx context.Context, fC dto.FLightCreate) (entity.Flight, error) {
+	// TODO impl me
+	panic("impl me")
 }
 
-func (fRepo *flightRepository) DeleteById(id oid.Id) (entity.Flight, error) {
+func (fRepo *flightRepository) DeleteById(ctx context.Context, id oid.Id) (entity.Flight, error) {
 	//TODO implement me
 	panic("implement me")
-}
-
-func NewFlightRepository() FLightRepository {
-	return &flightRepository{collection: make(map[oid.Id]entity.Flight)}
 }

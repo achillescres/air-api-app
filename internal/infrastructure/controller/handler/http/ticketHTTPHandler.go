@@ -19,8 +19,12 @@ type ticketHandler struct {
 
 var _ TicketHandler = (*ticketHandler)(nil)
 
+func NewTicketHandler(tUc usecase.TicketUsecase) TicketHandler {
+	return &ticketHandler{ticketUsecase: tUc}
+}
+
 func (tH *ticketHandler) GetAllTicketsMap(c *gin.Context) {
-	ticketsMap, err := tH.ticketUsecase.GetAllByMap()
+	ticketsMap, err := tH.ticketUsecase.GetAllByMap(c)
 	if err != nil {
 		log.Errorf("error TicketUsecase.GetAllTicketsMap: %s", err.Error())
 		err = c.Error(err)
@@ -32,6 +36,9 @@ func (tH *ticketHandler) GetAllTicketsMap(c *gin.Context) {
 	c.JSON(http.StatusOK, ticketsMap)
 }
 
-func NewTicketHandler(tUc usecase.TicketUsecase) TicketHandler {
-	return &ticketHandler{ticketUsecase: tUc}
+func (tH *ticketHandler) RegisterRouter(r *gin.RouterGroup) {
+	r = r.Group("/ticket")
+	{
+		r.GET("/getAllTicketsMap", tH.GetAllTicketsMap)
+	}
 }

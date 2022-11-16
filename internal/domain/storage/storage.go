@@ -2,12 +2,14 @@ package storage
 
 import (
 	"api-app/internal/domain/entity"
+	"api-app/internal/domain/storage/dto"
 	"api-app/pkg/object/oid"
+	"context"
 )
 
-type Storage[Entity entity.Entity, View entity.View] interface {
-	GetById(id oid.Id) (Entity, error)
-	GetAll() ([]Entity, error)
-	Store(f View) (Entity, error)
-	DeleteById(id oid.Id) (Entity, error)
+type Storage[Entity entity.Entity, View entity.View, Create dto.Create] interface {
+	GetById(ctx context.Context, id oid.Id) (Entity, error)
+	GetAll(ctx context.Context) ([]Entity, error)
+	Store(ctx context.Context, f Create) (Entity, error)
+	DeleteById(ctx context.Context, id oid.Id) (Entity, error)
 }

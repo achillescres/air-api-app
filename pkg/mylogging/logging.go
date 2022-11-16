@@ -1,4 +1,4 @@
-package logging
+package mylogging
 
 import (
 	customLog "github.com/antonfisher/nested-logrus-formatter"
@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func ConfigureLog() {
+func ConfigureLogrus() {
 	log.SetFormatter(&customLog.Formatter{
 		HideKeys:    true,
 		FieldsOrder: []string{"component", "category"},

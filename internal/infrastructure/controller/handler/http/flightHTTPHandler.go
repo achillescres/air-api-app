@@ -22,20 +22,28 @@ type flightHandler struct {
 var _ FlightHandler = (*flightHandler)(nil)
 
 func (fHandler *flightHandler) GetAllFlightTables(c *gin.Context) {
-	flightTables, err := fHandler.flightUsecase.GetAllFlightTables()
+	flightTables, err := fHandler.flightUsecase.GetAllFlightTables(c)
 	if err != nil {
 		err := c.AbortWithError(http.StatusInternalServerError, err)
 		if err != nil {
 			log.Errorf("can't AbortWithError: %s", err.Error())
 		}
+		return
 	}
 
-	flightTableSTOs := map[oid.Id]sto.FlightTableSTO{}
+	flightTableSTOs := map[oid.Id]*sto.FlightTableSTO{}
 	for _, fT := range flightTables {
-		flightTableSTOs[fT.Id] = *sto.ToFLightTableSTO(fT)
+		flightTableSTOs[fT.Id] = sto.ToFlightTableSTO(fT)
 	}
 
-	c.JSON(http.StatusOK, flightTableSTOs)
+	c.JSON(http.StatusOK, flightTableSTOs) // TODO maybe make it returns list instead of a map
+}
+
+func (fHandler *flightHandler) RegisterRouter(r *gin.RouterGroup) {
+	r = r.Group("/flight")
+	{
+		r.GET("getAllFlightTables", fHandler.GetAllFlightTables)
+	}
 }
 
 func NewFlightHandler(fUc usecase.FlightUsecase) FlightHandler {

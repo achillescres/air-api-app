@@ -3,11 +3,13 @@ package service
 import (
 	"api-app/internal/domain/entity"
 	"api-app/internal/domain/storage"
+	"api-app/internal/domain/storage/dto"
 	"api-app/pkg/object/oid"
+	"context"
 )
 
 type TicketService interface {
-	Service[entity.Ticket, entity.TicketView]
+	Service[entity.Ticket, entity.TicketView, dto.TicketCreate]
 }
 
 type ticketService struct {
@@ -16,9 +18,9 @@ type ticketService struct {
 
 var _ TicketService = (*ticketService)(nil)
 
-func (tService *ticketService) GetAllByMap() (map[oid.Id]entity.Ticket, error) {
+func (tService *ticketService) GetAllByMap(ctx context.Context) (map[oid.Id]entity.Ticket, error) {
 	ticketsMap := map[oid.Id]entity.Ticket{}
-	tickets, err := tService.storage.GetAll()
+	tickets, err := tService.storage.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -29,20 +31,20 @@ func (tService *ticketService) GetAllByMap() (map[oid.Id]entity.Ticket, error) {
 	return ticketsMap, nil
 }
 
-func (tService *ticketService) GetById(id oid.Id) (entity.Ticket, error) {
-	return tService.GetById(id)
+func (tService *ticketService) GetById(ctx context.Context, id oid.Id) (entity.Ticket, error) {
+	return tService.GetById(ctx, id)
 }
 
-func (tService *ticketService) GetAll() ([]entity.Ticket, error) {
-	return tService.storage.GetAll()
+func (tService *ticketService) GetAll(ctx context.Context) ([]entity.Ticket, error) {
+	return tService.storage.GetAll(ctx)
 }
 
-func (tService *ticketService) Store(tV entity.TicketView) (entity.Ticket, error) {
-	return tService.storage.Store(tV)
+func (tService *ticketService) Store(ctx context.Context, tC dto.TicketCreate) (entity.Ticket, error) {
+	return tService.storage.Store(ctx, tC)
 }
 
-func (tService *ticketService) DeleteById(id oid.Id) (entity.Ticket, error) {
-	return tService.storage.DeleteById(id)
+func (tService *ticketService) DeleteById(ctx context.Context, id oid.Id) (entity.Ticket, error) {
+	return tService.storage.DeleteById(ctx, id)
 }
 
 func NewTicketService(storage storage.TicketStorage) TicketService {
