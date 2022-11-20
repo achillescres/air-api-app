@@ -5,11 +5,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Router struct {
+type Routers struct {
 	*gin.Engine
 }
 
-func NewRouter(ctx context.Context, handlers Handler) (*Router, error) {
+func NewRouters(ctx context.Context, handlers Handlers) (*Routers, error) {
 	r := gin.Default()
 
 	root := r.Group("/")
@@ -18,5 +18,5 @@ func NewRouter(ctx context.Context, handlers Handler) (*Router, error) {
 		return nil, err
 	}
 
-	return &Router{Engine: r}, nil
+	return &Routers{Engine: r}, nil
 }

@@ -26,14 +26,14 @@ func (fHandler *flightHandler) GetAllFlightTables(c *gin.Context) {
 	if err != nil {
 		err := c.AbortWithError(http.StatusInternalServerError, err)
 		if err != nil {
-			log.Errorf("can't AbortWithError: %s", err.Error())
+			log.Errorf("can't AbortWithError: %s\n", err.Error())
 		}
 		return
 	}
 
 	flightTableSTOs := map[oid.Id]*sto.FlightTableSTO{}
 	for _, fT := range flightTables {
-		flightTableSTOs[fT.Id] = sto.ToFlightTableSTO(fT)
+		flightTableSTOs[fT.Id] = sto.ToFlightTableSTO(*fT)
 	}
 
 	c.JSON(http.StatusOK, flightTableSTOs) // TODO maybe make it returns list instead of a map

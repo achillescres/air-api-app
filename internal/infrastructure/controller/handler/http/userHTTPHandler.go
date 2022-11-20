@@ -11,7 +11,7 @@ import (
 
 type UserHandler interface {
 	Handler[entity.Flight]
-	Register(c *gin.RouterGroup)
+	Register(c *gin.Context)
 	Login(c *gin.Context)
 	Logout(c *gin.Context)
 }
@@ -20,8 +20,14 @@ type userHandler struct {
 	usecase.UserUsecase
 }
 
-// Register is POST method, registers users
-// get the JSON with dto.UserCreate model
+var _ UserHandler = (*userHandler)(nil)
+
+func NewUserHandler(userUsecase usecase.UserUsecase) UserHandler {
+	return &userHandler{UserUsecase: userUsecase}
+}
+
+// Register is POST method, that registers users
+// It gets the JSON with dto.UserCreate model
 func (uH *userHandler) Register(c *gin.Context) {
 	createUser := dto.UserCreate{}
 	err := c.BindJSON(&createUser)
@@ -29,7 +35,7 @@ func (uH *userHandler) Register(c *gin.Context) {
 		response.Error(c, http.StatusUnprocessableEntity, "invalid object format")
 	}
 
-	_, err = uH.Store(c, createUser)
+	_, err = uH.StoreUser(c, createUser)
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, "couldn't store user in repository")
 	}
@@ -51,8 +57,4 @@ func (uH *userHandler) RegisterRouter(r *gin.RouterGroup) {
 	r.POST("/register", uH.Register)
 	r.POST("/login", uH.Login)
 	r.POST("/logout", uH.Logout)
-}
-
-func NewUserHandler(userUsecase usecase.UserUsecase) UserHandler {
-	return &userHandler{UserUsecase: userUsecase}
 }

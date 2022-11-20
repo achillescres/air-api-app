@@ -24,12 +24,12 @@ func NewTicketHandler(tUc usecase.TicketUsecase) TicketHandler {
 }
 
 func (tH *ticketHandler) GetAllTicketsMap(c *gin.Context) {
-	ticketsMap, err := tH.ticketUsecase.GetAllByMap(c)
+	ticketsMap, err := tH.ticketUsecase.GetAllTicketsByMap(c)
 	if err != nil {
-		log.Errorf("error TicketUsecase.GetAllTicketsMap: %s", err.Error())
+		log.Errorf("error TicketUsecase.GetAllTicketsMap: %s\n", err.Error())
 		err = c.Error(err)
 		if err != nil {
-			log.Errorf("error puting error to gin context: %s", err.Error())
+			log.Errorf("error puting error to gin context: %s\n", err.Error())
 		}
 	}
 

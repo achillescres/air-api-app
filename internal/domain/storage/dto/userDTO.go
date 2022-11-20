@@ -4,8 +4,8 @@ import "api-app/internal/domain/entity"
 
 type UserCreate struct {
 	Create
-	Login    string `json:"login" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Login    string `json:"login" `
+	Password string `json:"password" `
 }
 
 func (uC *UserCreate) ToUserView(hashedPassword string) entity.UserView {

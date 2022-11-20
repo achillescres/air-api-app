@@ -18,17 +18,21 @@ type flightService struct {
 
 var _ FlightService = (*flightService)(nil)
 
+func NewFlightService(storage storage.FlightStorage) FlightService {
+	return &flightService{storage: storage}
+}
+
 func (fService *flightService) GetById(ctx context.Context, id oid.Id) (entity.Flight, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (fService *flightService) GetAll(ctx context.Context) ([]entity.Flight, error) {
+func (fService *flightService) GetAll(ctx context.Context) ([]*entity.Flight, error) {
 	return fService.storage.GetAll(ctx)
 }
 
-func (fService *flightService) GetAllByMap(ctx context.Context) (map[oid.Id]entity.Flight, error) {
-	flightsMap := map[oid.Id]entity.Flight{}
+func (fService *flightService) GetAllByMap(ctx context.Context) (map[oid.Id]*entity.Flight, error) {
+	flightsMap := map[oid.Id]*entity.Flight{}
 	flights, err := fService.storage.GetAll(ctx)
 	if err != nil {
 		return nil, err
@@ -40,15 +44,11 @@ func (fService *flightService) GetAllByMap(ctx context.Context) (map[oid.Id]enti
 	return flightsMap, nil
 }
 
-func (fService *flightService) Store(ctx context.Context, fC dto.FLightCreate) (entity.Flight, error) {
+func (fService *flightService) Store(ctx context.Context, fC dto.FLightCreate) (*entity.Flight, error) {
 	f, err := fService.storage.Store(ctx, fC)
 	return f, err
 }
 
 func (fService *flightService) DeleteById(ctx context.Context, id oid.Id) (entity.Flight, error) {
 	return fService.storage.DeleteById(ctx, id)
-}
-
-func NewFlightService(storage storage.FlightStorage) FlightService {
-	return &flightService{storage: storage}
 }

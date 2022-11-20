@@ -2,34 +2,34 @@ package product
 
 import "api-app/internal/domain/service"
 
-type Service interface {
+type Services interface {
 	FlightService() service.FlightService
 	TicketService() service.TicketService
 	UserService() service.UserService
 }
 
-type serv struct {
+type servs struct {
 	flightService service.FlightService
 	ticketService service.TicketService
 	userService   service.UserService
 }
 
-func (s *serv) FlightService() service.FlightService {
+func (s *servs) FlightService() service.FlightService {
 	return s.flightService
 }
 
-func (s *serv) TicketService() service.TicketService {
+func (s *servs) TicketService() service.TicketService {
 	return s.ticketService
 }
 
-func (s *serv) UserService() service.UserService {
+func (s *servs) UserService() service.UserService {
 	return s.userService
 }
 
-func NewService(
-	repo Repository,
-) (Service, error) {
-	return &serv{
+func NewServices(
+	repo Repositories,
+) (Services, error) {
+	return &servs{
 		flightService: service.NewFlightService(repo.FlightRepo()),
 		ticketService: service.NewTicketService(repo.TicketRepo()),
 		userService:   service.NewUserService(repo.UserRepo()),

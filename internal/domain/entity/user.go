@@ -3,24 +3,31 @@ package entity
 import "api-app/pkg/object/oid"
 
 type User struct {
-	Entity
-	Id   oid.Id   `json:"id" binding:"required"`
-	View UserView `json:"view" binding:"required"`
+	Entity `json:"-" db:"-"`
+	Id     oid.Id `json:"id" db:"id"`
+
+	// View
+	Login          string `json:"login" db:"login"`
+	HashedPassword string `json:"hashedPassword" db:"hashed_password"`
+}
+
+func (u *User) ToView() *UserView {
+	return &UserView{
+		Login:          u.Login,
+		HashedPassword: u.HashedPassword,
+	}
 }
 
 type UserView struct {
-	View
-	Login          string `json:"login" binding:"required"`
-	HashedPassword string `json:"hashedPassword" binding:"required"`
+	View           `json:"-" db:"-"`
+	Login          string `json:"login" db:"login"`
+	HashedPassword string `json:"hashedPassword" db:"hashed_password"`
 }
 
-func ToUserView(u User) UserView {
-	return u.View
-}
-
-func FromUserView(id oid.Id, uV UserView) *User {
+func (uV UserView) ToEntity(id oid.Id) *User {
 	return &User{
-		Id:   id,
-		View: uV,
+		Id:             id,
+		Login:          uV.Login,
+		HashedPassword: uV.HashedPassword,
 	}
 }

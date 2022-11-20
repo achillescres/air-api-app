@@ -2,20 +2,19 @@ package dto
 
 import (
 	"api-app/internal/domain/entity"
-	"time"
 )
 
 type FLightCreate struct {
 	Create
-	AirlCode        string    `json:"airlCode" binding:"required"`
-	FltNum          string    `json:"fltNum" binding:"required"`
-	FltDate         string    `json:"fltDate" binding:"required"`
-	OrigIATA        string    `json:"origIata" binding:"required"`
-	DestIATA        string    `json:"destIata" binding:"required"`
-	DepartureTime   time.Time `json:"departureTime" binding:"required"`
-	ArriveTime      time.Time `json:"arriveTime" binding:"required"`
-	TotalCash       float64   `json:"totalCash" binding:"required"`
-	CorrectlyParsed bool      `json:"correctlyParsed" binding:"required"`
+	AirlCode        string  `json:"airlCode" `
+	FltNum          string  `json:"fltNum" `
+	FltDate         string  `json:"fltDate" `
+	OrigIATA        string  `json:"origIata" `
+	DestIATA        string  `json:"destIata" `
+	DepartureTime   string  `json:"departureTime" `
+	ArrivalTime     string  `json:"arrivalTime" `
+	TotalCash       float64 `json:"totalCash" `
+	CorrectlyParsed bool    `json:"correctlyParsed" `
 }
 
 func (fC *FLightCreate) ToView() *entity.FlightView {
@@ -26,7 +25,7 @@ func (fC *FLightCreate) ToView() *entity.FlightView {
 		OrigIATA:        fC.OrigIATA,
 		DestIATA:        fC.DestIATA,
 		DepartureTime:   fC.DepartureTime,
-		ArriveTime:      fC.ArriveTime,
+		ArrivalTime:     fC.ArrivalTime,
 		TotalCash:       fC.TotalCash,
 		CorrectlyParsed: fC.CorrectlyParsed,
 	}

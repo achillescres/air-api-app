@@ -22,15 +22,15 @@ func (uS *userService) GetById(ctx context.Context, id oid.Id) (entity.User, err
 	return uS.GetById(ctx, id)
 }
 
-func (uS *userService) GetAll(ctx context.Context) ([]entity.User, error) {
+func (uS *userService) GetAll(ctx context.Context) ([]*entity.User, error) {
 	return uS.GetAll(ctx)
 }
 
-func (uS *userService) GetAllByMap(ctx context.Context) (map[oid.Id]entity.User, error) {
+func (uS *userService) GetAllByMap(ctx context.Context) (map[oid.Id]*entity.User, error) {
 	return uS.GetAllByMap(ctx)
 }
 
-func (uS *userService) Store(ctx context.Context, uC dto.UserCreate) (entity.User, error) {
+func (uS *userService) Store(ctx context.Context, uC dto.UserCreate) (*entity.User, error) {
 	return uS.Store(ctx, uC)
 }
 

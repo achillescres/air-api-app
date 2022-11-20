@@ -9,6 +9,8 @@ import (
 	"api-app/pkg/object/oid"
 	"api-app/pkg/security/passlib"
 	"context"
+	"errors"
+	log "github.com/sirupsen/logrus"
 )
 
 type UserRepository interface {
@@ -16,13 +18,13 @@ type UserRepository interface {
 }
 
 type userRepository struct {
-	pool postgresql.Pool
-	cfg  config.DBConfig
+	pool postgresql.PGXPool
+	cfg  config.PostgresConfig
 }
 
 var _ UserRepository = (*userRepository)(nil)
 
-func NewUserRepository(pool postgresql.Pool, cfg config.DBConfig) UserRepository {
+func NewUserRepository(pool postgresql.PGXPool, cfg config.PostgresConfig) UserRepository {
 	return &userRepository{pool: pool, cfg: cfg}
 }
 
@@ -31,15 +33,15 @@ func (uRepo *userRepository) GetById(ctx context.Context, id oid.Id) (entity.Use
 	panic("implement me")
 }
 
-func (uRepo *userRepository) GetAll(ctx context.Context) ([]entity.User, error) {
+func (uRepo *userRepository) GetAll(ctx context.Context) ([]*entity.User, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (uRepo *userRepository) Store(ctx context.Context, uC dto.UserCreate) (entity.User, error) {
+func (uRepo *userRepository) Store(ctx context.Context, uC dto.UserCreate) (*entity.User, error) {
 	hashedPassword, err := passlib.HashPassword(uC.Password)
 	if err != nil {
-		return entity.User{}, err
+		return &entity.User{}, err
 	}
 	query, err := uRepo.pool.Query(
 		ctx,
@@ -47,26 +49,27 @@ func (uRepo *userRepository) Store(ctx context.Context, uC dto.UserCreate) (enti
 		uC.Login,
 		hashedPassword,
 	)
+	defer query.Close()
 	if err != nil {
-		return entity.User{}, err
+		log.Errorf("error inserting new user: %s\n", err.Error())
+		return &entity.User{}, err
 	}
 
+	newUser := uC.ToUserView(hashedPassword).ToEntity(oid.Undefined)
 	if !query.Next() {
-		return // TODO WHAT TO DO WTF???!!!?
+		err := errors.New("error there's no returned id from sql")
+		log.Errorln(err.Error())
+		return newUser, err // TODO WHAT TO DO WTF???!!!?
 	}
 	var id string
-	err := query.Scan(&id)
+	err = query.Scan(&id)
 	if err != nil {
-		return // TODO WHAT TO DO WTF??!?!?!?!?
+		log.Errorf("error scanning new newUser id: %s\n", err.Error())
+		return newUser, err // TODO WHAT TO DO WTF??!?!?!?!?
 	}
 
-	return entity.User{
-		Id: oid.ToId(id),
-		View: entity.UserView{
-			Login:          uC.Login,
-			HashedPassword: hashedPassword,
-		},
-	}, err
+	newUser.Id = oid.ToId(id)
+	return newUser, err
 }
 
 func (uRepo *userRepository) DeleteById(ctx context.Context, id oid.Id) (entity.User, error) {

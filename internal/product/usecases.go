@@ -5,32 +5,32 @@ import (
 	"api-app/internal/domain/usecase"
 )
 
-type Usecase interface {
+type Usecases interface {
 	FlightUc() usecase.FlightUsecase
 	TicketUc() usecase.TicketUsecase
 	UserUc() usecase.UserUsecase
 }
 
-type uc struct {
+type ucs struct {
 	flightUc usecase.FlightUsecase
 	ticketUc usecase.TicketUsecase
 	userUc   usecase.UserUsecase
 }
 
-func (u *uc) FlightUc() usecase.FlightUsecase {
+func (u *ucs) FlightUc() usecase.FlightUsecase {
 	return u.flightUc
 }
 
-func (u *uc) TicketUc() usecase.TicketUsecase {
+func (u *ucs) TicketUc() usecase.TicketUsecase {
 	return u.ticketUc
 }
 
-func (u *uc) UserUc() usecase.UserUsecase {
+func (u *ucs) UserUc() usecase.UserUsecase {
 	return u.userUc
 }
 
-func NewUsecase(service Service, cfg *config.UsecaseConfig) (Usecase, error) {
-	return &uc{
+func NewUsecases(service Services, cfg *config.UsecaseConfig) (Usecases, error) {
+	return &ucs{
 		flightUc: usecase.NewFlightUsecase(service.FlightService(), service.TicketService(), *cfg),
 		ticketUc: usecase.NewTicketUsecase(service.TicketService()),
 		userUc:   usecase.NewUserUsecase(service.UserService()),

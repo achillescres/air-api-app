@@ -7,7 +7,8 @@ import (
 )
 
 type ClientConfig struct {
-	MaxAttempts                              int
+	MaxConnections                           int
+	MaxConnectionAttempts                    int
 	WaitingDuration                          time.Duration
 	Username, Password, Host, Port, Database string
 }
@@ -21,11 +22,12 @@ func NewConfig(cc *ClientConfig) (*pgxpool.Config, error) {
 		return nil, err
 	}
 
-	addOptionsToConfig(config)
+	addOptionsToConfig(cc, config)
 
 	return config, err
 }
 
-func addOptionsToConfig(config *pgxpool.Config) *pgxpool.Config {
+func addOptionsToConfig(cc *ClientConfig, config *pgxpool.Config) *pgxpool.Config {
+	config.MaxConns = int32(cc.MaxConnections)
 	return config
 }

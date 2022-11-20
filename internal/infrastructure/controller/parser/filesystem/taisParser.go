@@ -14,7 +14,6 @@ import (
 	"path"
 	"strconv"
 	"strings"
-	"time"
 	"unicode"
 )
 
@@ -30,7 +29,11 @@ type taisParser struct {
 
 var _ TaisParser = (*taisParser)(nil)
 
-func NewTaisParser(tUsecase usecase.TicketUsecase, fUsecase usecase.FlightUsecase, cfg config.TaisParserConfig) TaisParser {
+func NewTaisParser(
+	tUsecase usecase.TicketUsecase,
+	fUsecase usecase.FlightUsecase,
+	cfg config.TaisParserConfig,
+) TaisParser {
 	return &taisParser{tUsecase: tUsecase, fUsecase: fUsecase, cfg: cfg}
 }
 
@@ -49,12 +52,12 @@ func parseFlightRow(row []string) *dto.FLightCreate {
 	departureTimeStr := row[5][:len(row[5])/2]
 	depTHour, err := strconv.Atoi(departureTimeStr[:2])
 	depTMinute, err := strconv.Atoi(departureTimeStr[2:])
-	departureTime := time.Date(1, time.January, 0, depTHour, depTMinute, 0, 0, time.UTC)
+	departureTime := fmt.Sprintf("%d:%d", depTHour, depTMinute)
 
 	arriveTimeStr := row[5][len(row[5])/2:]
 	arrTHour, err := strconv.Atoi(arriveTimeStr[:2])
 	arrTMinute, err := strconv.Atoi(arriveTimeStr[2:])
-	arriveTime := time.Date(1, time.January, 0, arrTHour, arrTMinute, 0, 0, time.UTC)
+	arriveTime := fmt.Sprintf("%d:%d", arrTHour, arrTMinute)
 
 	totalCash, err := strconv.ParseFloat(row[9], 32)
 	if err != nil {
@@ -68,7 +71,7 @@ func parseFlightRow(row []string) *dto.FLightCreate {
 		OrigIATA:        origIATA,
 		DestIATA:        destIATA,
 		DepartureTime:   departureTime,
-		ArriveTime:      arriveTime,
+		ArrivalTime:     arriveTime,
 		TotalCash:       totalCash,
 		CorrectlyParsed: correctlyParsed,
 	}
@@ -122,10 +125,11 @@ func (taisPrsr *taisParser) parseTicketRow(flightId oid.Id, row []string) *dto.T
 
 func (taisPrsr *taisParser) ParseFirstTaisFile(ctx context.Context) error {
 	env := config.Env()
-	taisDirPath := path.Join(env.ProjectPath, taisPrsr.cfg.TaisDirPath)
+	taisDirPath := path.Join(env.ProjectAbsPath, taisPrsr.cfg.TaisDirPath)
 	inDir, err := os.ReadDir(taisDirPath)
 	if err != nil {
-		log.Fatalf("(WillRemLog)fatal scanning tais directory=%s: %s\n", taisDirPath, err.Error()) // TODO remove fatal drop, add logic to save the system from deprecated data(outer layer work)
+		// TODO remove fatal drop, add logic to save the system from deprecated data(outer layer work)
+		log.Fatalf("(WillRemLog)fatal scanning tais directory=%s: %s\n", taisDirPath, err.Error())
 		return err
 	}
 
@@ -137,8 +141,8 @@ func (taisPrsr *taisParser) ParseFirstTaisFile(ctx context.Context) error {
 	}
 
 	if taisFileName == "" {
-		log.Fatalf("(WillRemLog)fatal didnt find tais file in tais dir=%s", taisDirPath) // TODO remove fatals
-		return errors.New(fmt.Sprintf("error didnt find tais file in tais dir=%s", taisDirPath))
+		log.Fatalf("(WillRemLog)fatal didnt find tais file in tais dir=%s\n", taisDirPath) // TODO remove fatals
+		return errors.New(fmt.Sprintf("error didnt find tais file in tais dir=%s\n", taisDirPath))
 	}
 
 	taisFilePath := path.Join(taisDirPath, taisFileName)
@@ -151,19 +155,21 @@ func (taisPrsr *taisParser) ParseFirstTaisFile(ctx context.Context) error {
 	defer func(f *os.File) {
 		err := f.Close()
 		if err != nil {
-			log.Errorf("error closing tais file=%s: %s", f.Name(), err.Error()) // TODO add logic to prevent memory leaks from unclosed files
+			// TODO add logic to prevent memory leaks from unclosed files
+			log.Errorf("error closing tais file=%s: %s\n", f.Name(), err.Error())
 		}
 	}(f)
 
 	sc := bufio.NewScanner(f)
+	sc.Split(bufio.ScanLines)
 	if !sc.Scan() {
-		log.Errorf("error tais parse file is empty")
+		log.Errorln("error tais parse file is empty")
 		return errors.New("error parse file is empty")
 	} else {
 		sc.Text() // Meta line
 	}
 
-	rows := make([]string, 0)
+	rows := make([]string, 0, 1800)
 	for sc.Scan() {
 		rows = append(rows, sc.Text())
 	}
@@ -181,7 +187,7 @@ func (taisPrsr *taisParser) ParseFirstTaisFile(ctx context.Context) error {
 		switch len(procLine) {
 		case 10: // flight
 			parsedFlight := parseFlightRow(procLine)
-			flight, err := taisPrsr.fUsecase.Store(ctx, *parsedFlight)
+			flight, err := taisPrsr.fUsecase.StoreFlight(ctx, *parsedFlight)
 			flightId = flight.Id
 			if err != nil {
 				globalErr = err
@@ -190,7 +196,7 @@ func (taisPrsr *taisParser) ParseFirstTaisFile(ctx context.Context) error {
 			}
 		case 6: // ticket
 			parsedTicket := taisPrsr.parseTicketRow(flightId, procLine)
-			_, err := taisPrsr.tUsecase.Store(ctx, *parsedTicket)
+			_, err := taisPrsr.tUsecase.StoreTicket(ctx, *parsedTicket)
 			if err != nil {
 				globalErr = err
 				log.Fatalf("(WillRemLog)fatal creating ticket: %s\n", err.Error()) // TODO remove fatals

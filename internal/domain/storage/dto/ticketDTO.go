@@ -7,16 +7,16 @@ import (
 
 type TicketCreate struct {
 	Create
-	FlightId        oid.Id  `json:"flightId" binding:"required"`
-	AirlCode        string  `json:"airlCode" binding:"required"`
-	FltNum          string  `json:"fltNum" binding:"required"`
-	FltDate         string  `json:"fltDate" binding:"required"`
-	TicketCode      string  `json:"ticketCode" binding:"required"`
-	TicketCapacity  int     `json:"ticketCapacity" binding:"required"`
-	TicketType      string  `json:"ticketType" binding:"required"`
-	Amount          int     `json:"amount" binding:"required"`
-	TotalCash       float64 `json:"totalCash" binding:"required"`
-	CorrectlyParsed bool    `json:"correct" binding:"required"`
+	FlightId        oid.Id  `json:"flightId" `
+	AirlCode        string  `json:"airlCode" `
+	FltNum          string  `json:"fltNum" `
+	FltDate         string  `json:"fltDate" `
+	TicketCode      string  `json:"ticketCode" `
+	TicketCapacity  int     `json:"ticketCapacity" `
+	TicketType      string  `json:"ticketType" `
+	Amount          int     `json:"amount" `
+	TotalCash       float64 `json:"totalCash" `
+	CorrectlyParsed bool    `json:"correct" `
 }
 
 func (tC *TicketCreate) ToTicketView() *entity.TicketView {
