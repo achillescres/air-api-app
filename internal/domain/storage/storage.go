@@ -1,8 +1,8 @@
 package storage
 
 import (
+	"api-app/internal/domain/dto"
 	"api-app/internal/domain/entity"
-	"api-app/internal/domain/storage/dto"
 	"api-app/pkg/object/oid"
 	"context"
 )

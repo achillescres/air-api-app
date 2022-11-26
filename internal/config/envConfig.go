@@ -14,6 +14,7 @@ type EnvConfig struct {
 	ConfigPath       string `env:"CONFIG_PATH" env-required:"true"`
 	PostgresUsername string `env:"POSTGRES_USERNAME" env-required:"true"`
 	PostgresPassword string `env:"POSTGRES_PASSWORD" env-required:"true"`
+	PasswordHashSalt string `env:"PASSWORD_HASH_SALT" env-required:"true"`
 
 	ConfigAbsPath string
 }

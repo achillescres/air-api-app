@@ -29,10 +29,10 @@ func NewApp(ctx context.Context) (App, error) {
 	// Get all needed configs
 	log.Infoln("Gathering configs...")
 	appCfg := config.App()
-	usecaseCfg := config.Usecase()
+	handlerCfg := config.Handler()
 	parserCfg := config.TaisParser()
 	dbCfg := config.Postgres()
-	log.Infoln("Success")
+	log.Infoln("Success!")
 
 	pgPool, err := postgresql.NewPGXPool(ctx, &postgresql.ClientConfig{
 		MaxConnections:        dbCfg.MaxConnections,
@@ -64,15 +64,8 @@ func NewApp(ctx context.Context) (App, error) {
 	}
 	log.Infoln("Success!")
 
-	log.Infoln("Creating usecases...")
-	usecases, err := product.NewUsecases(services, &usecaseCfg)
-	if err != nil {
-		return nil, errors.New(fmt.Sprintf("fatal couldn't create usecases: %s", err.Error()))
-	}
-	log.Infoln("Success!")
-
 	log.Infoln("Creating handlers...")
-	handlers, err := product.NewHandlers(usecases)
+	handlers, err := product.NewHandlers(services, &handlerCfg)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("fatal couldn't create handlers: %s", err.Error()))
 	}
@@ -85,8 +78,8 @@ func NewApp(ctx context.Context) (App, error) {
 	}
 
 	log.Infoln("Building parsers...")
-	taisParser := parser.NewTaisParser(usecases.TicketUc(), usecases.FlightUc(), parserCfg)
-	log.Infoln("Success")
+	taisParser := parser.NewTaisParser(services.TicketService(), services.FlightService(), parserCfg)
+	log.Infoln("Success!")
 
 	// In this case I distinguished parsers as another type of controllers
 	// For now there's only the TAIS File parser, this is executing artificially at start of the app

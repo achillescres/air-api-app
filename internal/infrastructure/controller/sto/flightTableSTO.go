@@ -6,8 +6,8 @@ type FlightTableSTO struct {
 	object.FlightTable
 }
 
-func ToFlightTableSTO(fT object.FlightTable) *FlightTableSTO {
+func ToFlightTableSTO(fT *object.FlightTable) *FlightTableSTO {
 	return &FlightTableSTO{
-		FlightTable: fT,
+		FlightTable: *fT,
 	}
 }

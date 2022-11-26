@@ -1,31 +1,36 @@
 package passlib
 
 import (
+	"crypto/sha256"
 	"errors"
 	"fmt"
+	"log"
 	"sync"
 )
 
-// TODO implement passlib
-
 var salt string
-var hahser any
 var inited = false
 var once = &sync.Once{}
 
-//func Init(Salt string, hashMethod method) {
-//	once.Do(func() {
-//		salt = Salt
-//		hasher.Set(hashMethod)
-//		inited = true
-//	})
-//}
+func Init(Salt string) {
+	once.Do(func() {
+		salt = Salt
+		inited = true
+	})
+}
 
-func HashPassword(password string) (string, error) {
-	inited = true // TODO DELETE THIS
+func Hash(s string) (string, error) {
 	if !inited {
-		return "", errors.New("error you need to passlib.Init to work")
+		log.Fatalln("need to init passlib to use it!")
+		return "", errors.New("error you need to use Init before work")
 	}
 
-	return fmt.Sprintf("hashof:%s", password), nil
+	hash := sha256.New()
+	_, err := hash.Write([]byte(s))
+	if err != nil {
+		return "", err
+	}
+	sum := hash.Sum([]byte(salt))
+
+	return fmt.Sprintf("%x", sum), nil
 }

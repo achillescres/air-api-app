@@ -5,19 +5,19 @@ import (
 )
 
 type Flight struct {
-	Entity `json:"-" db:"-"`
-	Id     oid.Id `json:"id" db:"id"`
+	Entity `json:"-" db:"-" binding:"-"`
+	Id     oid.Id `json:"id" db:"id" binding:"required"`
 
 	// View
-	AirlCode        string  `json:"airlCode" db:"airl_code"`
-	FltNum          string  `json:"fltNum" db:"flt_num"`
-	FltDate         string  `json:"fltDate" db:"flt_date"`
-	OrigIATA        string  `json:"origIata" db:"orig_iata"`
-	DestIATA        string  `json:"destIata" db:"dest_iata"`
-	DepartureTime   string  `json:"departureTime" db:"departure_time"`
-	ArrivalTime     string  `json:"arrivalTime" db:"arrival_time"`
-	TotalCash       float64 `json:"totalCash" db:"total_cash"`
-	CorrectlyParsed bool    `json:"correctlyParsed" db:"correctly_parsed"`
+	AirlCode        string  `json:"airlCode" db:"airl_code" binding:"required"`
+	FltNum          string  `json:"fltNum" db:"flt_num" binding:"required"`
+	FltDate         string  `json:"fltDate" db:"flt_date" binding:"required"`
+	OrigIATA        string  `json:"origIata" db:"orig_iata" binding:"required"`
+	DestIATA        string  `json:"destIata" db:"dest_iata" binding:"required"`
+	DepartureTime   string  `json:"departureTime" db:"departure_time" binding:"required"`
+	ArrivalTime     string  `json:"arrivalTime" db:"arrival_time" binding:"required"`
+	TotalCash       float64 `json:"totalCash" db:"total_cash" binding:"required"`
+	CorrectlyParsed bool    `json:"correctlyParsed" db:"correctly_parsed" binding:"required"`
 }
 
 func (f *Flight) ToView() *FlightView {
@@ -36,15 +36,15 @@ func (f *Flight) ToView() *FlightView {
 
 type FlightView struct {
 	View            `json:"-" db:"-"`
-	AirlCode        string  `json:"airlCode" db:"airl_code"`
-	FltNum          string  `json:"fltNum" db:"flt_num"`
-	FltDate         string  `json:"fltDate" db:"flt_date"`
-	OrigIATA        string  `json:"origIata" db:"orig_iata"`
-	DestIATA        string  `json:"destIata" db:"dest_iata"`
-	DepartureTime   string  `json:"departureTime" db:"departure_time"`
-	ArrivalTime     string  `json:"arrivalTime" db:"arrival_time"`
-	TotalCash       float64 `json:"totalCash" db:"total_cash"`
-	CorrectlyParsed bool    `json:"correctlyParsed" db:"correctly_parsed"`
+	AirlCode        string  `json:"airlCode" db:"airl_code" binding:"required"`
+	FltNum          string  `json:"fltNum" db:"flt_num" binding:"required"`
+	FltDate         string  `json:"fltDate" db:"flt_date" binding:"required"`
+	OrigIATA        string  `json:"origIata" db:"orig_iata" binding:"required"`
+	DestIATA        string  `json:"destIata" db:"dest_iata" binding:"required"`
+	DepartureTime   string  `json:"departureTime" db:"departure_time" binding:"required"`
+	ArrivalTime     string  `json:"arrivalTime" db:"arrival_time" binding:"required"`
+	TotalCash       float64 `json:"totalCash" db:"total_cash" binding:"required"`
+	CorrectlyParsed bool    `json:"correctlyParsed" db:"correctly_parsed" binding:"required"`
 }
 
 func (view *FlightView) ToEntity(id oid.Id) *Flight {

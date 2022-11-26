@@ -3,20 +3,20 @@ package entity
 import "api-app/pkg/object/oid"
 
 type Ticket struct {
-	Entity `json:"-" db:"-"`
-	Id     oid.Id `json:"id" db:"id"`
+	Entity `json:"-" db:"-" binding:"-"`
+	Id     oid.Id `json:"id" db:"id" binding:"required"`
 
 	// View
-	FlightId        oid.Id  `json:"flightId" db:"flight_id"`
-	AirlCode        string  `json:"airlCode" db:"airl_code"`
-	FltNum          string  `json:"fltNum" db:"flt_num"`
-	FltDate         string  `json:"fltDate" db:"flt_date"`
-	TicketCode      string  `json:"ticketCode" db:"ticket_code"`
-	TicketCapacity  int     `json:"ticketCapacity" db:"ticket_capacity"`
-	TicketType      string  `json:"ticketType" db:"ticket_type"`
-	Amount          int     `json:"amount" db:"amount"`
-	TotalCash       float64 `json:"totalCash" db:"total_cash"`
-	CorrectlyParsed bool    `json:"correct" db:"correctly_parsed"`
+	FlightId        oid.Id  `json:"flightId" db:"flight_id" binding:"required"`
+	AirlCode        string  `json:"airlCode" db:"airl_code" binding:"required"`
+	FltNum          string  `json:"fltNum" db:"flt_num" binding:"required"`
+	FltDate         string  `json:"fltDate" db:"flt_date" binding:"required"`
+	TicketCode      string  `json:"ticketCode" db:"ticket_code" binding:"required"`
+	TicketCapacity  int     `json:"ticketCapacity" db:"ticket_capacity" binding:"required"`
+	TicketType      string  `json:"ticketType" db:"ticket_type" binding:"required"`
+	Amount          int     `json:"amount" db:"amount" binding:"required"`
+	TotalCash       float64 `json:"totalCash" db:"total_cash" binding:"required"`
+	CorrectlyParsed bool    `json:"correct" db:"correctly_parsed" binding:"required"`
 }
 
 var _ Entity = (*Ticket)(nil)
@@ -37,17 +37,18 @@ func (t *Ticket) ToView() *TicketView {
 }
 
 type TicketView struct {
-	View            `json:"-" db:"-"`
-	FlightId        oid.Id  `json:"flightId" db:"flight_id"`
-	AirlCode        string  `json:"airlCode" db:"airl_code"`
-	FltNum          string  `json:"fltNum" db:"flt_num"`
-	FltDate         string  `json:"fltDate" db:"flt_date"`
-	TicketCode      string  `json:"ticketCode" db:"ticket_code"`
-	TicketCapacity  int     `json:"ticketCapacity" db:"ticket_capacity"`
-	TicketType      string  `json:"ticketType" db:"ticket_type"`
-	Amount          int     `json:"amount" db:"amount"`
-	TotalCash       float64 `json:"totalCash" db:"total_cash"`
-	CorrectlyParsed bool    `json:"correct" db:"correctly_parsed"`
+	View `json:"-" db:"-" binding:"-"`
+
+	FlightId        oid.Id  `json:"flightId" db:"flight_id" binding:"required"`
+	AirlCode        string  `json:"airlCode" db:"airl_code" binding:"required"`
+	FltNum          string  `json:"fltNum" db:"flt_num" binding:"required"`
+	FltDate         string  `json:"fltDate" db:"flt_date" binding:"required"`
+	TicketCode      string  `json:"ticketCode" db:"ticket_code" binding:"required"`
+	TicketCapacity  int     `json:"ticketCapacity" db:"ticket_capacity" binding:"required"`
+	TicketType      string  `json:"ticketType" db:"ticket_type" binding:"required"`
+	Amount          int     `json:"amount" db:"amount" binding:"required"`
+	TotalCash       float64 `json:"totalCash" db:"total_cash" binding:"required"`
+	CorrectlyParsed bool    `json:"correct" db:"correctly_parsed" binding:"required"`
 }
 
 var _ View = (*TicketView)(nil)

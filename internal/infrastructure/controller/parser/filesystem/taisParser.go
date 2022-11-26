@@ -2,8 +2,8 @@ package parser
 
 import (
 	"api-app/internal/config"
-	"api-app/internal/domain/storage/dto"
-	"api-app/internal/domain/usecase"
+	"api-app/internal/domain/dto"
+	"api-app/internal/domain/service"
 	"api-app/pkg/object/oid"
 	"bufio"
 	"context"
@@ -22,19 +22,19 @@ type TaisParser interface {
 }
 
 type taisParser struct {
-	tUsecase usecase.TicketUsecase
-	fUsecase usecase.FlightUsecase
+	tService service.TicketService
+	fService service.FlightService
 	cfg      config.TaisParserConfig
 }
 
 var _ TaisParser = (*taisParser)(nil)
 
 func NewTaisParser(
-	tUsecase usecase.TicketUsecase,
-	fUsecase usecase.FlightUsecase,
+	tService service.TicketService,
+	fService service.FlightService,
 	cfg config.TaisParserConfig,
 ) TaisParser {
-	return &taisParser{tUsecase: tUsecase, fUsecase: fUsecase, cfg: cfg}
+	return &taisParser{tService: tService, fService: fService, cfg: cfg}
 }
 
 // A4 101 2022021312 KRR VKO 19502200 00SU9 0 NN 000151280.00
@@ -187,7 +187,7 @@ func (taisPrsr *taisParser) ParseFirstTaisFile(ctx context.Context) error {
 		switch len(procLine) {
 		case 10: // flight
 			parsedFlight := parseFlightRow(procLine)
-			flight, err := taisPrsr.fUsecase.StoreFlight(ctx, *parsedFlight)
+			flight, err := taisPrsr.fService.Store(ctx, *parsedFlight)
 			flightId = flight.Id
 			if err != nil {
 				globalErr = err
@@ -196,7 +196,7 @@ func (taisPrsr *taisParser) ParseFirstTaisFile(ctx context.Context) error {
 			}
 		case 6: // ticket
 			parsedTicket := taisPrsr.parseTicketRow(flightId, procLine)
-			_, err := taisPrsr.tUsecase.StoreTicket(ctx, *parsedTicket)
+			_, err := taisPrsr.tService.Store(ctx, *parsedTicket)
 			if err != nil {
 				globalErr = err
 				log.Fatalf("(WillRemLog)fatal creating ticket: %s\n", err.Error()) // TODO remove fatals

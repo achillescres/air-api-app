@@ -1,15 +1,16 @@
 package service
 
 import (
+	"api-app/internal/domain/dto"
 	"api-app/internal/domain/entity"
 	"api-app/internal/domain/storage"
-	"api-app/internal/domain/storage/dto"
 	"api-app/pkg/object/oid"
 	"context"
 )
 
 type UserService interface {
 	Service[entity.User, entity.UserView, dto.UserCreate]
+	GetByLoginAndHashedPassword(ctx context.Context, login, hashedPassword string) (*entity.User, error)
 }
 
 type userService struct {
@@ -18,8 +19,12 @@ type userService struct {
 
 var _ UserService = (*userService)(nil)
 
+func (uS *userService) GetByLoginAndHashedPassword(ctx context.Context, login, hashedPassword string) (*entity.User, error) {
+	return uS.GetByLoginAndHashedPassword(ctx, login, hashedPassword)
+}
+
 func (uS *userService) GetById(ctx context.Context, id oid.Id) (entity.User, error) {
-	return uS.GetById(ctx, id)
+	return uS.storage.GetById(ctx, id)
 }
 
 func (uS *userService) GetAll(ctx context.Context) ([]*entity.User, error) {

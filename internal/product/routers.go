@@ -13,7 +13,7 @@ func NewRouters(ctx context.Context, handlers Handlers) (*Routers, error) {
 	r := gin.Default()
 
 	root := r.Group("/")
-	err := handlers.RegisterAll(ctx, root)
+	err := handlers.Register(root)
 	if err != nil {
 		return nil, err
 	}
