@@ -12,7 +12,7 @@ const (
 )
 
 var (
-	secret = ""
+	secret []byte
 	inited = false
 	once   = &sync.Once{}
 )
@@ -20,15 +20,19 @@ var (
 func Init(Secret string) {
 	once.Do(func() {
 		inited = true
-		secret = Secret
+		secret = []byte(Secret)
 	})
 }
 
 type UserClaims struct {
-	jwt.StandardClaims
-	Id             string
+	*jwt.StandardClaims
+
 	Login          string
 	HashedPassword string
+}
+
+func newUserClaims(standardClaims *jwt.StandardClaims, login string, hashedPassword string) *UserClaims {
+	return &UserClaims{StandardClaims: standardClaims, Login: login, HashedPassword: hashedPassword}
 }
 
 func User(login, hashedPassword string) (string, error) {
@@ -37,19 +41,28 @@ func User(login, hashedPassword string) (string, error) {
 	}
 
 	now := time.Now()
-	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS512, &UserClaims{
-		StandardClaims: jwt.StandardClaims{
+
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS512, newUserClaims(
+		&jwt.StandardClaims{
 			ExpiresAt: now.Add(liveTime).Unix(),
 			IssuedAt:  now.Unix(),
 			Subject:   "user auth",
 		},
-		Login:          login,
-		HashedPassword: hashedPassword,
-	})
-	token, err := jwtToken.SignedString([]byte(secret))
+		login,
+		hashedPassword,
+	))
+
+	token, err := jwtToken.SignedString(secret)
 	if err != nil {
 		return "", nil
 	}
 
 	return token, nil
+}
+
+func ValidateUser(token string) error {
+	parse, err := jwt.Parse(token)
+	if err != nil {
+		return err
+	}
 }

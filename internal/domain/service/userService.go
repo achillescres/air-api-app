@@ -9,7 +9,7 @@ import (
 )
 
 type UserService interface {
-	Service[entity.User, entity.UserView, dto.UserCreate]
+	PrimitiveService[entity.User, entity.UserView, dto.UserCreate]
 	GetByLoginAndHashedPassword(ctx context.Context, login, hashedPassword string) (*entity.User, error)
 }
 
@@ -23,7 +23,7 @@ func (uS *userService) GetByLoginAndHashedPassword(ctx context.Context, login, h
 	return uS.GetByLoginAndHashedPassword(ctx, login, hashedPassword)
 }
 
-func (uS *userService) GetById(ctx context.Context, id oid.Id) (entity.User, error) {
+func (uS *userService) GetById(ctx context.Context, id oid.Id) (*entity.User, error) {
 	return uS.storage.GetById(ctx, id)
 }
 
@@ -39,7 +39,7 @@ func (uS *userService) Store(ctx context.Context, uC dto.UserCreate) (*entity.Us
 	return uS.Store(ctx, uC)
 }
 
-func (uS *userService) DeleteById(ctx context.Context, id oid.Id) (entity.User, error) {
+func (uS *userService) DeleteById(ctx context.Context, id oid.Id) (*entity.User, error) {
 	return uS.DeleteById(ctx, id)
 }
 

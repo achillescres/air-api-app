@@ -9,7 +9,7 @@ import (
 )
 
 type FlightService interface {
-	Service[entity.Flight, entity.FlightView, dto.FLightCreate]
+	PrimitiveService[entity.Flight, entity.FlightView, dto.FLightCreate]
 }
 
 type flightService struct {

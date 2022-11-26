@@ -8,11 +8,10 @@ import (
 	"context"
 )
 
-type TicketService interface {
-	Service[entity.Ticket, entity.TicketView, dto.TicketCreate]
-}
+type TicketService PrimitiveService[entity.Ticket, entity.View, dto.TicketCreate]
 
 type ticketService struct {
+	TicketService
 	storage storage.TicketStorage
 }
 
@@ -35,7 +34,7 @@ func (tService *ticketService) GetAllByMap(ctx context.Context) (map[oid.Id]*ent
 	return ticketsMap, nil
 }
 
-func (tService *ticketService) GetById(ctx context.Context, id oid.Id) (entity.Ticket, error) {
+func (tService *ticketService) GetById(ctx context.Context, id oid.Id) (*entity.Ticket, error) {
 	return tService.GetById(ctx, id)
 }
 
@@ -47,6 +46,6 @@ func (tService *ticketService) Store(ctx context.Context, tC dto.TicketCreate) (
 	return tService.storage.Store(ctx, tC)
 }
 
-func (tService *ticketService) DeleteById(ctx context.Context, id oid.Id) (entity.Ticket, error) {
+func (tService *ticketService) DeleteById(ctx context.Context, id oid.Id) (*entity.Ticket, error) {
 	return tService.storage.DeleteById(ctx, id)
 }
