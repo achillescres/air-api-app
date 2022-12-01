@@ -1,10 +1,9 @@
 package repository
 
 import (
-	"api-app/internal/config"
-	"api-app/internal/domain/dto"
 	"api-app/internal/domain/entity"
 	"api-app/internal/domain/storage"
+	"api-app/internal/domain/storage/dto"
 	"api-app/pkg/db/postgresql"
 	"api-app/pkg/object/oid"
 	"context"
@@ -14,22 +13,20 @@ import (
 )
 
 type TicketRepository interface {
-	storage.Storage[entity.Ticket, entity.TicketView, dto.TicketCreate]
-	GetAllByFlightId(ctx context.Context, flightId oid.Id) ([]*entity.Ticket, error)
+	storage.TicketStorage
 }
 
 type ticketRepository struct {
 	pool postgresql.PGXPool
-	cfg  config.PostgresConfig
 }
 
 var _ storage.TicketStorage = (*ticketRepository)(nil)
 
-func NewTicketRepository(pool postgresql.PGXPool, cfg config.PostgresConfig) TicketRepository {
-	return &ticketRepository{pool: pool, cfg: cfg}
+func NewTicketRepository(pool postgresql.PGXPool) TicketRepository {
+	return &ticketRepository{pool: pool}
 }
 
-func (tRepo *ticketRepository) GetById(ctx context.Context, id oid.Id) (entity.Ticket, error) {
+func (tRepo *ticketRepository) GetById(ctx context.Context, id oid.Id) (*entity.Ticket, error) {
 	// TODO implement me
 	panic("implement me")
 }
@@ -48,6 +45,11 @@ func (tRepo *ticketRepository) GetAll(ctx context.Context) ([]*entity.Ticket, er
 	}
 
 	return tickets, err
+}
+
+func (tRepo *ticketRepository) GetAllInMap(ctx context.Context) (map[oid.Id]*entity.Ticket, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (tRepo *ticketRepository) GetAllByFlightId(ctx context.Context, flightId oid.Id) ([]*entity.Ticket, error) {
@@ -73,27 +75,27 @@ func (tRepo *ticketRepository) Store(ctx context.Context, tC dto.TicketCreate) (
 	defer query.Close()
 	if err != nil {
 		log.Errorf("error inserting new flight: %s\n", err.Error())
-		return &entity.Ticket{}, err
+		return nil, err
 	}
 
-	newTicket := tC.ToTicketView().ToEntity(oid.Undefined)
 	if !query.Next() {
-		err := errors.New("error there's no returned id from sql")
+		err := errors.New("error sql didn't return id of new Ticket")
 		log.Errorln(err.Error())
-		return newTicket, err // TODO WHAT TO DO WTF???!!!?
+
+		return nil, err // TODO WHAT TO DO WTF???!!!?
 	}
+
 	var id string
 	err = query.Scan(&id)
 	if err != nil {
 		log.Errorf("error scanning new newTicket id: %s\n", err.Error())
-		return newTicket, err // TODO WHAT TO DO WTF??!?!?!?!?
+		return nil, err // TODO WHAT TO DO WTF??!?!?!?!?
 	}
 
-	newTicket.Id = oid.ToId(id)
-	return newTicket, err
+	return tC.ToEntity(oid.ToId(id)), err
 }
 
-func (tRepo *ticketRepository) DeleteById(ctx context.Context, id oid.Id) (entity.Ticket, error) {
+func (tRepo *ticketRepository) DeleteById(ctx context.Context, id oid.Id) (*entity.Ticket, error) {
 	// TODO implement me
 	panic("implement me")
 }

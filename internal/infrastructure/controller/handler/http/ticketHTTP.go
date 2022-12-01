@@ -8,10 +8,10 @@ import (
 )
 
 func (h *handler) GetAllTicketsMap(c *gin.Context) {
-	ticketsMap, err := h.ticketService.GetAllByMap(c)
+	ticketsMap, err := h.dataService.GetAllFlightsInMap(c)
 	if err != nil {
 		log.Errorf("error TicketUsecase.GetAllTicketsMap: %s\n", err.Error())
-		ginresponse.WithError(c, http.StatusInternalServerError, err)
+		ginresponse.WithError(c, http.StatusInternalServerError, err, "couldn't get all TicketsMap")
 		return
 	}
 

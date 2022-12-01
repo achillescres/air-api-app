@@ -2,6 +2,7 @@ package dto
 
 import (
 	"api-app/internal/domain/entity"
+	"api-app/pkg/object/oid"
 )
 
 type FLightCreate struct {
@@ -17,8 +18,9 @@ type FLightCreate struct {
 	CorrectlyParsed bool    `json:"correctlyParsed" `
 }
 
-func (fC *FLightCreate) ToView() *entity.FlightView {
-	return &entity.FlightView{
+func (fC *FLightCreate) ToEntity(id oid.Id) *entity.Flight {
+	return &entity.Flight{
+		Id:              id,
 		AirlCode:        fC.AirlCode,
 		FltNum:          fC.FltNum,
 		FltDate:         fC.FltDate,

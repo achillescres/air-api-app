@@ -1,11 +1,11 @@
-package dto
+package sto
 
-type LoginInput struct {
+type LoginUserInput struct {
 	Login    string `json:"username" binding:"required, max=20"`
 	Password string `json:"password" binding:"required, max=20"`
 }
 
-type RegisterInput struct {
+type RegisterUserInput struct {
 	Login    string `json:"username" binding:"required, max=20"`
 	Password string `json:"password" binding:"required, max=20"`
 }

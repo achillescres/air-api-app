@@ -1,10 +1,9 @@
 package repository
 
 import (
-	"api-app/internal/config"
-	"api-app/internal/domain/dto"
 	"api-app/internal/domain/entity"
 	"api-app/internal/domain/storage"
+	"api-app/internal/domain/storage/dto"
 	"api-app/pkg/db/postgresql"
 	"api-app/pkg/object/oid"
 	"context"
@@ -14,20 +13,19 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type FlightRepository storage.Storage[entity.Flight, entity.FlightView, dto.FLightCreate]
+type FlightRepository storage.FlightStorage
 
 type flightRepository struct {
 	pool postgresql.PGXPool
-	cfg  config.PostgresConfig
 }
 
 var _ FlightRepository = (*flightRepository)(nil)
 
-func NewFlightRepository(pool postgresql.PGXPool, cfg config.PostgresConfig) FlightRepository {
-	return &flightRepository{pool: pool, cfg: cfg}
+func NewFlightRepository(pool postgresql.PGXPool) FlightRepository {
+	return &flightRepository{pool: pool}
 }
 
-func (fRepo *flightRepository) GetById(ctx context.Context, id oid.Id) (entity.Flight, error) {
+func (fRepo *flightRepository) GetById(ctx context.Context, id oid.Id) (*entity.Flight, error) {
 	// TODO implement me
 	panic("implement me")
 }
@@ -51,6 +49,20 @@ func (fRepo *flightRepository) GetAll(ctx context.Context) ([]*entity.Flight, er
 	return flights, nil
 }
 
+func (fRepo *flightRepository) GetAllInMap(ctx context.Context) (map[oid.Id]*entity.Flight, error) {
+	flightsSlice, err := fRepo.GetAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	flightsMap := map[oid.Id]*entity.Flight{}
+	for _, flight := range flightsSlice {
+		flightsMap[flight.Id] = flight
+	}
+
+	return flightsMap, nil
+}
+
 func (fRepo *flightRepository) Store(ctx context.Context, fC dto.FLightCreate) (*entity.Flight, error) {
 	query, err := fRepo.pool.Query(
 		ctx,
@@ -67,28 +79,26 @@ func (fRepo *flightRepository) Store(ctx context.Context, fC dto.FLightCreate) (
 	)
 	if err != nil {
 		log.Errorf("error inserting new flight: %s\n", err.Error())
-		return &entity.Flight{}, err
+		return nil, err
 	}
 	defer query.Close()
 
-	newFlight := fC.ToView().ToEntity(oid.Undefined)
 	if !query.Next() {
 		err := errors.New("error there's no returned id from sql")
 		log.Errorln(err.Error())
-		return newFlight, err // TODO WHAT TO DO WTF???!!!?
+		return nil, err // TODO WHAT TO DO WTF???!!!?
 	}
 	var id string
 	err = query.Scan(&id)
 	if err != nil {
 		log.Errorf("error scanning new newFlight id: %s\n", err.Error())
-		return newFlight, err // TODO WHAT TO DO WTF??!?!?!?!?
+		return nil, err // TODO WHAT TO DO WTF??!?!?!?!?
 	}
 
-	newFlight.Id = oid.ToId(id)
-	return newFlight, err
+	return fC.ToEntity(oid.ToId(id)), err
 }
 
-func (fRepo *flightRepository) DeleteById(ctx context.Context, id oid.Id) (entity.Flight, error) {
+func (fRepo *flightRepository) DeleteById(ctx context.Context, id oid.Id) (*entity.Flight, error) {
 	//TODO implement me
 	panic("implement me")
 }

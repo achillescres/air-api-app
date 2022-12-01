@@ -62,7 +62,7 @@ func (tP *taisParser) ParseFirstTaisFile(ctx context.Context) (map[int]error, er
 		if err != nil {
 			// TODO add normal logic to prevent memory leaks from unclosed files
 			log.Errorf("error closing tais file=%s: %s\n", f.Name(), err.Error())
-			f.Close() //!
+			f.Close() // TODO this is not best practice i'd say
 		}
 	}(f)
 

@@ -19,8 +19,9 @@ type TicketCreate struct {
 	CorrectlyParsed bool    `json:"correct" `
 }
 
-func (tC *TicketCreate) ToTicketView() *entity.TicketView {
-	return &entity.TicketView{
+func (tC *TicketCreate) ToEntity(id oid.Id) *entity.Ticket {
+	return &entity.Ticket{
+		Id:              id,
 		FlightId:        tC.FlightId,
 		AirlCode:        tC.AirlCode,
 		FltNum:          tC.FltNum,

@@ -1,15 +1,15 @@
 package service
 
 import (
-	"api-app/internal/domain/dto"
 	"api-app/internal/domain/entity"
 	"api-app/internal/domain/storage"
+	"api-app/internal/domain/storage/dto"
 	"api-app/pkg/object/oid"
 	"context"
 )
 
 type FlightService interface {
-	PrimitiveService[entity.Flight, entity.FlightView, dto.FLightCreate]
+	PrimitiveService[entity.Flight, dto.FLightCreate]
 }
 
 type flightService struct {
@@ -22,7 +22,7 @@ func NewFlightService(storage storage.FlightStorage) FlightService {
 	return &flightService{storage: storage}
 }
 
-func (fService *flightService) GetById(ctx context.Context, id oid.Id) (entity.Flight, error) {
+func (fService *flightService) GetById(ctx context.Context, id oid.Id) (*entity.Flight, error) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -49,6 +49,6 @@ func (fService *flightService) Store(ctx context.Context, fC dto.FLightCreate) (
 	return f, err
 }
 
-func (fService *flightService) DeleteById(ctx context.Context, id oid.Id) (entity.Flight, error) {
+func (fService *flightService) DeleteById(ctx context.Context, id oid.Id) (*entity.Flight, error) {
 	return fService.storage.DeleteById(ctx, id)
 }

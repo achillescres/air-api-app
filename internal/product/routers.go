@@ -1,7 +1,6 @@
 package product
 
 import (
-	"context"
 	"github.com/gin-gonic/gin"
 )
 
@@ -9,7 +8,7 @@ type Routers struct {
 	*gin.Engine
 }
 
-func NewRouters(ctx context.Context, handlers Handlers) (*Routers, error) {
+func NewRouters(handlers Handlers) (*Routers, error) {
 	r := gin.Default()
 
 	root := r.Group("/")

@@ -15,6 +15,7 @@ type EnvConfig struct {
 	PostgresUsername string `env:"POSTGRES_USERNAME" env-required:"true"`
 	PostgresPassword string `env:"POSTGRES_PASSWORD" env-required:"true"`
 	PasswordHashSalt string `env:"PASSWORD_HASH_SALT" env-required:"true"`
+	JWTSecret        string `env:"JWT_SECRET" env-required:"true"`
 
 	ConfigAbsPath string
 }

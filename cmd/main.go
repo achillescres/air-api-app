@@ -2,9 +2,7 @@ package main
 
 import (
 	"api-app/internal/application"
-	"api-app/internal/config"
 	"api-app/pkg/mylogging"
-	"api-app/pkg/security/passlib"
 	"context"
 	"fmt"
 	log "github.com/sirupsen/logrus"
@@ -16,10 +14,6 @@ func init() {
 
 func main() {
 	log.Infoln("Let's go!")
-
-	passHashSalt := config.Env().PasswordHashSalt
-	passlib.Init(passHashSalt)
-
 	ctx := context.Background()
 	log.Infoln("Creating app...")
 	app, err := application.NewApp(ctx)

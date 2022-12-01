@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-const postgresConfigFile = "postgres.config.yaml"
+const postgresConfigFilename = "postgres.config.yaml"
 
 type PostgresConfig struct {
 	MaxConnections          int    `yaml:"maxConnections" env-required:"true"`
@@ -34,8 +34,7 @@ var (
 func Postgres() PostgresConfig {
 	loadPostgresOnce.Do(func() {
 		env := Env()
-		dbCfgPath := path.Join(env.ConfigAbsPath, postgresConfigFile)
-		readConfig(dbCfgPath, postgresCfgInst)
+		readConfig(path.Join(env.ConfigAbsPath, postgresConfigFilename), postgresCfgInst)
 
 		postgresCfgInst.Username = env.PostgresUsername
 		postgresCfgInst.Password = env.PostgresPassword

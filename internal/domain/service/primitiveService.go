@@ -1,13 +1,13 @@
 package service
 
 import (
-	"api-app/internal/domain/dto"
 	"api-app/internal/domain/entity"
+	"api-app/internal/domain/storage/dto"
 	"api-app/pkg/object/oid"
 	"context"
 )
 
-type PrimitiveService[Entity entity.Entity, View entity.View, Create dto.Create] interface {
+type PrimitiveService[Entity entity.Entity, Create dto.Create] interface {
 	GetById(ctx context.Context, id oid.Id) (*Entity, error)
 	GetAll(ctx context.Context) ([]*Entity, error)
 	GetAllByMap(ctx context.Context) (map[oid.Id]*Entity, error)

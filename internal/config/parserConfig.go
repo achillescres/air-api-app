@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-const taisParserConfigFile = "parser.config.yaml"
+const taisParserConfigFilename = "parser.config.yaml"
 
 type TaisParserConfig struct {
 	TaisDirPath             string `yaml:"taisDirPath" env-required:"true"`
@@ -19,8 +19,7 @@ var (
 
 func TaisParser() TaisParserConfig {
 	loadTaisParserCfgOnce.Do(func() {
-		taisParserCfgPath := path.Join(Env().ConfigAbsPath, taisParserConfigFile)
-		readConfig(taisParserCfgPath, taisParserCfgInst)
+		readConfig(path.Join(Env().ConfigAbsPath, taisParserConfigFilename), taisParserCfgInst)
 	})
 
 	return *taisParserCfgInst

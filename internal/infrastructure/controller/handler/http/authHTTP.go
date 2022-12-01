@@ -1,10 +1,10 @@
 package httpHandler
 
 import (
-	"api-app/internal/domain/dto"
+	"api-app/internal/domain/service/sto"
+	"api-app/internal/domain/storage"
 	"api-app/pkg/gin/ginresponse"
-	"api-app/pkg/security/ajwt"
-	"api-app/pkg/security/passlib"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -12,53 +12,42 @@ import (
 // Register is POST method, that registers users
 // It gets the JSON with dto.UserCreate model
 func (h *handler) Register(c *gin.Context) {
-	registerInput := dto.RegisterInput{}
-	err := c.ShouldBindJSON(&registerInput)
+	registerInput := &sto.RegisterUserInput{}
+	err := c.ShouldBindJSON(registerInput)
 	if err != nil {
-		ginresponse.WithError(c, http.StatusUnprocessableEntity, err, "invalid object")
+		ginresponse.WithError(c, http.StatusUnprocessableEntity, err, "invalid object format")
 		return
 	}
 
-	createUser := dto.UserCreate{
-		Create:   nil,
-		Login:    registerInput.Login,
-		Password: registerInput.Password,
-	}
-
-	user, err := h.userService.Store(c, createUser)
+	id, err := h.authService.RegisterUser(c, registerInput)
 	if err != nil {
-		ginresponse.WithError(c, http.StatusInternalServerError, err, "couldn't store user")
+		ginresponse.WithError(c, http.StatusInternalServerError, err, "error registering user")
 		return
 	}
 
-	c.JSON(http.StatusOK, map[string]any{"id": user.Id})
+	c.JSON(http.StatusOK, gin.H{"id": id})
 }
 
 func (h *handler) Login(c *gin.Context) {
-	loginInput := dto.LoginInput{}
-	err := c.ShouldBindJSON(&loginInput)
+	loginUserInput := sto.LoginUserInput{}
+	err := c.ShouldBindJSON(&loginUserInput)
 	if err != nil {
-		ginresponse.WithError(c, http.StatusUnprocessableEntity, err, "invalid object")
+		ginresponse.WithError(c, http.StatusUnprocessableEntity, err, "invalid object format")
 		return
 	}
 
-	hashedPassword, err := passlib.Hash(loginInput.Password)
-	user, err := h.userService.GetByLoginAndHashedPassword(c, loginInput.Login, hashedPassword)
-	if err != nil {
+	jwtToken, refreshToken, err := h.authService.LoginUser(c, &loginUserInput)
+	if errors.Is(err, storage.ErrNotFound) {
 		ginresponse.WithError(c, http.StatusBadRequest, err, "invalid login or password")
 		return
 	}
 
-	token, err := ajwt.User(user.Login, user.HashedPassword)
 	if err != nil {
-		ginresponse.WithError(c, http.StatusInternalServerError, err, "couldn't generate token")
+		ginresponse.WithError(c, http.StatusInternalServerError, err, "couldn't get user")
 		return
 	}
 
-	h.jwtService.Store()
-	h.refreshTokenService.Store()
-
-	c.JSON(http.StatusOK, gin.H{"Bearer": token})
+	c.JSON(http.StatusOK, gin.H{"Bearer": *jwtToken, "Rt": *refreshToken})
 }
 
 func (h *handler) Logout(c *gin.Context) {

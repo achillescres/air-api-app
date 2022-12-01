@@ -1,0 +1,2 @@
+JWTLiveTimeMinutes: 10
+refreshTokenLiveTimeMinutes: 2100

@@ -1,37 +1,28 @@
 package product
 
-import "api-app/internal/domain/service"
+import (
+	"api-app/internal/config"
+	"api-app/internal/domain/service"
+	"api-app/pkg/security/ajwt"
+	"api-app/pkg/security/passlib"
+)
 
-type Services interface {
-	FlightService() service.FlightService
-	TicketService() service.TicketService
-	UserService() service.UserService
-}
-
-type servs struct {
-	flightService service.FlightService
-	ticketService service.TicketService
-	userService   service.UserService
-}
-
-func (s *servs) FlightService() service.FlightService {
-	return s.flightService
-}
-
-func (s *servs) TicketService() service.TicketService {
-	return s.ticketService
-}
-
-func (s *servs) UserService() service.UserService {
-	return s.userService
+type Services struct {
+	AuthService   service.AuthService
+	ParserService service.ParserService
+	TablesService service.DataService
 }
 
 func NewServices(
-	repo Repositories,
-) (Services, error) {
-	return &servs{
-		flightService: service.NewFlightService(repo.FlightRepo()),
-		ticketService: service.NewTicketService(repo.TicketRepo()),
-		userService:   service.NewUserService(repo.UserRepo()),
+	repos *Repositories,
+	taisParserConfig *config.TaisParserConfig,
+	hasher passlib.HashManager,
+	jwtManager ajwt.JWTManager,
+	cfg config.AuthConfig,
+) (*Services, error) {
+	return &Services{
+		AuthService:   service.NewAuthService(repos.UserRepo, repos.RefreshTokenRepo, hasher, jwtManager, cfg),
+		ParserService: service.NewParserService(repos.FlightRepo, repos.TicketRepo, taisParserConfig),
+		TablesService: service.NewDataService(repos.FlightRepo, repos.TicketRepo),
 	}, nil
 }

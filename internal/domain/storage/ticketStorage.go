@@ -1,8 +1,13 @@
 package storage
 
 import (
-	"api-app/internal/domain/dto"
 	"api-app/internal/domain/entity"
+	"api-app/internal/domain/storage/dto"
+	"api-app/pkg/object/oid"
+	"context"
 )
 
-type TicketStorage Storage[entity.Ticket, entity.TicketView, dto.TicketCreate]
+type TicketStorage interface {
+	Storage[entity.Ticket, dto.TicketCreate]
+	GetAllByFlightId(ctx context.Context, flightId oid.Id) ([]*entity.Ticket, error)
+}

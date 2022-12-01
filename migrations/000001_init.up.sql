@@ -37,3 +37,11 @@ CREATE TABLE tickets
 
     Correctly_Parsed bool                                          NOT NULL
 );
+
+CREATE TABLE refresh_tokens
+(
+    Id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    Token TEXT UNIQUE NOT NULL,
+    Expiration_Time_Unix BIGINT NOT NULL,
+    Created_Time_Unix BIGINT NOT NULL
+);

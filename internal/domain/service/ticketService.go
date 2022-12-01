@@ -1,14 +1,14 @@
 package service
 
 import (
-	"api-app/internal/domain/dto"
 	"api-app/internal/domain/entity"
 	"api-app/internal/domain/storage"
+	"api-app/internal/domain/storage/dto"
 	"api-app/pkg/object/oid"
 	"context"
 )
 
-type TicketService PrimitiveService[entity.Ticket, entity.View, dto.TicketCreate]
+type TicketService PrimitiveService[entity.Ticket, dto.TicketCreate]
 
 type ticketService struct {
 	TicketService

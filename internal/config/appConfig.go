@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-const appConfigFile = "app.config.yaml"
+const appConfigFilename = "app.config.yaml"
 
 // AppConfig App
 type AppConfig struct {
@@ -23,8 +23,7 @@ var (
 
 func App() AppConfig {
 	loadAppCfgOnce.Do(func() {
-		appCfgPath := path.Join(Env().ConfigAbsPath, appConfigFile)
-		readConfig(appCfgPath, appCfgInst)
+		readConfig(path.Join(Env().ConfigAbsPath, appConfigFilename), appCfgInst)
 	})
 
 	return *appCfgInst

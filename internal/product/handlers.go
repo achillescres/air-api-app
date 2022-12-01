@@ -3,6 +3,7 @@ package product
 import (
 	"api-app/internal/config"
 	httpHandler "api-app/internal/infrastructure/controller/handler/http"
+	parser "api-app/internal/infrastructure/controller/parser/filesystem"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,12 +15,12 @@ type handlers struct {
 	handler httpHandler.Handler
 }
 
-func NewHandlers(services Services, cfg *config.HandlerConfig) (Handlers, error) {
+func NewHandlers(services *Services, cfg *config.HandlerConfig, taisParser parser.TaisParser) (Handlers, error) {
 	return &handlers{handler: httpHandler.NewHandler(
-		services.FlightService(),
-		services.TicketService(),
-		services.UserService(),
-		cfg,
+		services.AuthService,
+		taisParser,
+		services.TablesService,
+		*cfg,
 	)}, nil
 }
 

@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-const handlerConfigFile = "usecase.config.yaml"
+const handlerConfigFilename = "usecase.config.yaml"
 
 type HandlerConfig struct {
 	DefaultTableCapacity int `yaml:"defaultTableCapacity" env-default:"16"`
@@ -18,8 +18,7 @@ var (
 
 func Handler() HandlerConfig {
 	loadHandlerCfgOnce.Do(func() {
-		handlerCfgPath := path.Join(Env().ConfigAbsPath, handlerConfigFile)
-		readConfig(handlerCfgPath, handlerCfgInst)
+		readConfig(path.Join(Env().ConfigAbsPath, handlerConfigFilename), handlerCfgInst)
 	})
 
 	return *handlerCfgInst
