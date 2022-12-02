@@ -48,6 +48,7 @@ func NewApp(ctx context.Context) (App, error) {
 		Port:                  dbCfg.Port,
 		Database:              dbCfg.Database,
 	})
+	log.Warnln(pgPool)
 	if err != nil {
 		return nil, err
 	}

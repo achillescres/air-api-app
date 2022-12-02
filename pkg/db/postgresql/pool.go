@@ -40,7 +40,9 @@ func NewPGXPool(ctx context.Context, cc *ClientConfig) (PGXPool, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	if pool == nil {
+		return nil, errors.New("error couldn't connect to db")
+	}
 	return pool, err
 }
 

@@ -81,8 +81,8 @@ func (*parserService) parseFlightRow(fields []string) (*dto.FLightCreate, error)
 
 // A4 101 2022021312B Y0100Y 00 0000000001000020000000050000000000000.00
 func (pS *parserService) parseTicketRow(flightId oid.Id, fields []string) (*dto.TicketCreate, error) {
-	if len(fields) != 10 {
-		return nil, errors.New("flight fields len must be 10")
+	if len(fields) != 6 {
+		return nil, errors.New("ticket fields len must be 6")
 	}
 
 	correctlyParsed := true
@@ -142,7 +142,7 @@ func (pS *parserService) ParseFields(ctx context.Context, fields []string) error
 		if err != nil {
 			return err
 		}
-	case 7:
+	case 6:
 		parsedTicket, err := pS.parseTicketRow(pS.currentFlightId, fields)
 		if err != nil {
 			return err
