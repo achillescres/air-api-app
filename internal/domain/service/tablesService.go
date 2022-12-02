@@ -11,7 +11,7 @@ import (
 )
 
 type DataService interface {
-	GetAllFlightTables(ctx context.Context) (map[oid.Id]*sto.FlightTableSTO, error)
+	GetAllFlightTables(ctx context.Context) ([]*sto.FlightTableSTO, error)
 	GetAllFlightsInMap(ctx context.Context) (map[oid.Id]*entity.Flight, error)
 }
 
@@ -27,7 +27,7 @@ func NewDataService(flightStorage storage.FlightStorage, ticketStorage storage.T
 	return &dataService{flightStorage: flightStorage, ticketStorage: ticketStorage}
 }
 
-func (dataS *dataService) GetAllFlightTables(ctx context.Context) (map[oid.Id]*sto.FlightTableSTO, error) {
+func (dataS *dataService) GetAllFlightTables(ctx context.Context) ([]*sto.FlightTableSTO, error) {
 	flights, err := dataS.flightStorage.GetAllInMap(ctx)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,12 @@ func (dataS *dataService) GetAllFlightTables(ctx context.Context) (map[oid.Id]*s
 		fT.Tickets = append(fT.Tickets, *ticket)
 	}
 
-	return fTableSTOsMap, nil
+	fTs := make([]*sto.FlightTableSTO, 0, dataS.cfg.FlightTableDefaultCapacity)
+	for _, fT := range fTableSTOsMap {
+		fTs = append(fTs, fT)
+	}
+
+	return fTs, nil
 }
 
 func (dataS *dataService) GetAllFlightsInMap(ctx context.Context) (map[oid.Id]*entity.Flight, error) {
