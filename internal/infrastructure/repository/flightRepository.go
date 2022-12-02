@@ -31,12 +31,14 @@ func (fRepo *flightRepository) GetById(ctx context.Context, id oid.Id) (*entity.
 }
 
 func (fRepo *flightRepository) GetAll(ctx context.Context) ([]*entity.Flight, error) {
+	fmt.Println(fRepo)
+	fmt.Println(fRepo.pool)
 	rows, err := fRepo.pool.Query(ctx, "SELECT * FROM public.flights")
-	defer rows.Close()
 	if err != nil {
 		log.Errorf("error can't get all flights: %s", err.Error())
 		return nil, err
 	}
+	defer rows.Close()
 
 	var flights []*entity.Flight
 	err = pgxscan.ScanAll(&flights, rows)
