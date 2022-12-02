@@ -51,9 +51,11 @@ func (dataS *dataService) GetAllFlightTables(ctx context.Context) ([]*sto.Flight
 		fT.Tickets = append(fT.Tickets, *ticket)
 	}
 
-	fTs := make([]*sto.FlightTableSTO, 0, dataS.cfg.FlightTableDefaultCapacity)
+	fTs := make([]*sto.FlightTableSTO, len(fTableSTOsMap))
+	i := 0
 	for _, fT := range fTableSTOsMap {
-		fTs = append(fTs, fT)
+		fTs[i] = fT
+		i++
 	}
 
 	return fTs, nil
