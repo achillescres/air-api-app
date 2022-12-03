@@ -33,7 +33,7 @@ docker: clean
 	go mod tidy
 
 	# Remove previous images
-	docker image rm ${DOCKER_USERNAME}/saina-api && true
+	docker image rm ${DOCKER_USERNAME}/saina-api || true
 
 	# Build image
 	docker build --tag ${DOCKER_USERNAME}/saina-api --build-arg TRASH_SIGN=$(SAINA_TRASH_STAGE) .
