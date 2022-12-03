@@ -1,6 +1,8 @@
 package entity
 
-import "api-app/pkg/object/oid"
+import (
+	"github.com/achillescres/saina-api/pkg/object/oid"
+)
 
 type User struct {
 	Entity         `json:"-" db:"-" binding:"-"`

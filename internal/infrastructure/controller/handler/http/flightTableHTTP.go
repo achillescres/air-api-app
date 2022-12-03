@@ -1,7 +1,7 @@
 package httpHandler
 
 import (
-	"api-app/pkg/gin/ginresponse"
+	"github.com/achillescres/saina-api/pkg/gin/ginresponse"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

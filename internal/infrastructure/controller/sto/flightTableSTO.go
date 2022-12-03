@@ -1,6 +1,8 @@
 package sto
 
-import "api-app/internal/domain/object"
+import (
+	"github.com/achillescres/saina-api/internal/domain/object"
+)
 
 type FlightTableSTO struct {
 	object.FlightTable

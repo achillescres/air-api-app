@@ -1,7 +1,7 @@
 package entity
 
 import (
-	"api-app/pkg/object/oid"
+	"github.com/achillescres/saina-api/pkg/object/oid"
 )
 
 type Flight struct {

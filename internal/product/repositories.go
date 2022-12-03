@@ -1,23 +1,23 @@
 package product
 
 import (
-	"api-app/internal/infrastructure/repository"
-	"api-app/pkg/db/postgresql"
-	"api-app/pkg/security/passlib"
+	repository2 "github.com/achillescres/saina-api/internal/infrastructure/repository"
+	"github.com/achillescres/saina-api/pkg/db/postgresql"
+	"github.com/achillescres/saina-api/pkg/security/passlib"
 )
 
 type Repositories struct {
-	FlightRepo       repository.FlightRepository
-	TicketRepo       repository.TicketRepository
-	UserRepo         repository.UserRepository
-	RefreshTokenRepo repository.RefreshTokenRepository
+	FlightRepo       repository2.FlightRepository
+	TicketRepo       repository2.TicketRepository
+	UserRepo         repository2.UserRepository
+	RefreshTokenRepo repository2.RefreshTokenRepository
 }
 
 func NewRepositories(pgPool postgresql.PGXPool, hashManager passlib.HashManager) (*Repositories, error) {
 	return &Repositories{
-		FlightRepo:       repository.NewFlightRepository(pgPool),
-		TicketRepo:       repository.NewTicketRepository(pgPool),
-		UserRepo:         repository.NewUserRepository(pgPool, hashManager),
-		RefreshTokenRepo: repository.NewRefreshTokenRepository(pgPool),
+		FlightRepo:       repository2.NewFlightRepository(pgPool),
+		TicketRepo:       repository2.NewTicketRepository(pgPool),
+		UserRepo:         repository2.NewUserRepository(pgPool, hashManager),
+		RefreshTokenRepo: repository2.NewRefreshTokenRepository(pgPool),
 	}, nil
 }

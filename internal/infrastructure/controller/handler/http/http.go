@@ -1,10 +1,10 @@
 package httpHandler
 
 import (
-	"api-app/internal/config"
-	"api-app/internal/domain/service"
-	parser "api-app/internal/infrastructure/controller/parser/filesystem"
-	"api-app/pkg/gin/ginresponse"
+	"github.com/achillescres/saina-api/internal/config"
+	service2 "github.com/achillescres/saina-api/internal/domain/service"
+	"github.com/achillescres/saina-api/internal/infrastructure/controller/parser/filesystem"
+	"github.com/achillescres/saina-api/pkg/gin/ginresponse"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -14,18 +14,18 @@ type Handler interface {
 }
 
 type handler struct {
-	authService service.AuthService
+	authService service2.AuthService
 	taisParser  parser.TaisParser
-	dataService service.DataService
+	dataService service2.DataService
 	cfg         config.HandlerConfig
 }
 
 var _ Handler = (*handler)(nil)
 
 func NewHandler(
-	authService service.AuthService,
+	authService service2.AuthService,
 	parserService parser.TaisParser,
-	dataService service.DataService,
+	dataService service2.DataService,
 	cfg config.HandlerConfig,
 ) Handler {
 	return &handler{

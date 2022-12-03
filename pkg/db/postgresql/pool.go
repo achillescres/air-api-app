@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	log "github.com/sirupsen/logrus"
 	"time"
 )
 
@@ -22,8 +23,8 @@ func NewPGXPool(ctx context.Context, cc *ClientConfig) (PGXPool, error) {
 		return nil, err
 	}
 
-	pool, err := TryNTimesWaiting(ctx, cc.MaxConnectionAttempts, cc.WaitingDuration, func() (PGXPool, error) {
-		//var pool PGXPool
+	pool, err := TryNTimesWaiting(ctx, cc.MaxConnectionAttempts, cc.WaitingDuration, func(ctx context.Context) (PGXPool, error) {
+		log.Infof("trying to connect to db: %s\n", config.ConnString())
 		pool, err := pgxpool.NewWithConfig(ctx, config)
 		if err != nil {
 			return nil, err
@@ -46,20 +47,39 @@ func NewPGXPool(ctx context.Context, cc *ClientConfig) (PGXPool, error) {
 	return pool, err
 }
 
-func TryNTimesWaiting(ctx context.Context, n int, waitingDuration time.Duration, f func() (PGXPool, error)) (PGXPool, error) {
+func TryNTimesWaiting(ctx context.Context, n int, waitingDuration time.Duration, f func(ctx context.Context) (PGXPool, error)) (PGXPool, error) {
+	var res PGXPool
 	var err error
-	for i := 0; i < n; i++ {
-		res, err := f()
-		if err == nil {
-			return res, nil
+
+	var ctxTimeout context.Context
+	var cancel context.CancelFunc
+	defer func() {
+		if cancel != nil {
+			cancel()
 		}
+	}()
+
+	for i := 0; i < n; i++ {
+		ctxTimeout, cancel = context.WithTimeout(context.Background(), waitingDuration)
+
+		go func() {
+			res, err = f(ctxTimeout)
+		}()
 		select {
-		case <-time.After(waitingDuration):
-			continue
+		case <-ctxTimeout.Done():
+			if res == nil || err != nil {
+				continue
+			}
+			cancel()
+			return res, nil
 		case <-ctx.Done():
-			return nil, errors.New("error context was closed so")
+			cancel()
+			return nil, errors.New("error global context was closed so")
 		}
 	}
 
-	return nil, err
+	if cancel != nil {
+		cancel()
+	}
+	return res, err
 }

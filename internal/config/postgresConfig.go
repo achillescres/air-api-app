@@ -12,15 +12,15 @@ type PostgresConfig struct {
 	MaxConnections          int    `yaml:"maxConnections" env-required:"true"`
 	MaxConnectionAttempts   int    `yaml:"maxConnectionAttempts" env-required:"true"`
 	WaitTimeoutMilliseconds int    `yaml:"waitTimeoutMilliseconds" env-required:"true"`
-	Host                    string `yaml:"host" env-required:"true"`
 	Port                    string `yaml:"port" env-required:"true"`
 	Database                string `yaml:"database" env-required:"true"`
+	Schema                  string `yaml:"schema" env-default:"public"`
 
-	Schema       string `yaml:"schema" env-default:"public"`
 	UsersTable   string `yaml:"usersTable" env-default:"users"`
 	TicketsTable string `yaml:"ticketsTable" env-default:"tickets"`
 	FlightsTable string `yaml:"flightsTable" env-default:"flights"`
 
+	Host        string
 	Username    string
 	Password    string
 	WaitTimeout time.Duration
@@ -35,6 +35,8 @@ func Postgres() PostgresConfig {
 	loadPostgresOnce.Do(func() {
 		env := Env()
 		readConfig(path.Join(env.ConfigAbsPath, postgresConfigFilename), postgresCfgInst)
+
+		postgresCfgInst.Host = env.DBHost
 
 		postgresCfgInst.Username = env.PostgresUsername
 		postgresCfgInst.Password = env.PostgresPassword

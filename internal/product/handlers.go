@@ -1,9 +1,9 @@
 package product
 
 import (
-	"api-app/internal/config"
-	httpHandler "api-app/internal/infrastructure/controller/handler/http"
-	parser "api-app/internal/infrastructure/controller/parser/filesystem"
+	"github.com/achillescres/saina-api/internal/config"
+	"github.com/achillescres/saina-api/internal/infrastructure/controller/handler/http"
+	"github.com/achillescres/saina-api/internal/infrastructure/controller/parser/filesystem"
 	"github.com/gin-gonic/gin"
 )
 

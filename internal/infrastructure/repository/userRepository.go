@@ -1,19 +1,19 @@
 package repository
 
 import (
-	"api-app/internal/domain/entity"
-	"api-app/internal/domain/storage"
-	"api-app/internal/domain/storage/dto"
-	"api-app/pkg/db/postgresql"
-	"api-app/pkg/object/oid"
-	"api-app/pkg/security/passlib"
 	"context"
 	"errors"
+	"github.com/achillescres/saina-api/internal/domain/entity"
+	storage2 "github.com/achillescres/saina-api/internal/domain/storage"
+	"github.com/achillescres/saina-api/internal/domain/storage/dto"
+	"github.com/achillescres/saina-api/pkg/db/postgresql"
+	"github.com/achillescres/saina-api/pkg/object/oid"
+	"github.com/achillescres/saina-api/pkg/security/passlib"
 	"github.com/jackc/pgx/v5"
 	log "github.com/sirupsen/logrus"
 )
 
-type UserRepository storage.UserStorage
+type UserRepository storage2.UserStorage
 
 type userRepository struct {
 	pool        postgresql.PGXPool
@@ -36,7 +36,7 @@ func (uRepo *userRepository) GetByLoginAndHashedPassword(
 	user := &entity.User{}
 	err := row.Scan(user)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, storage.ErrNotFound
+		return nil, storage2.ErrNotFound
 	}
 	if err != nil {
 		return nil, err

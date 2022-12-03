@@ -1,13 +1,13 @@
 package service
 
 import (
-	"api-app/internal/config"
-	"api-app/internal/domain/entity"
-	"api-app/internal/domain/object"
-	"api-app/internal/domain/storage"
-	"api-app/internal/infrastructure/controller/sto"
-	"api-app/pkg/object/oid"
 	"context"
+	"github.com/achillescres/saina-api/internal/config"
+	"github.com/achillescres/saina-api/internal/domain/entity"
+	"github.com/achillescres/saina-api/internal/domain/object"
+	storage2 "github.com/achillescres/saina-api/internal/domain/storage"
+	"github.com/achillescres/saina-api/internal/infrastructure/controller/sto"
+	"github.com/achillescres/saina-api/pkg/object/oid"
 )
 
 type DataService interface {
@@ -16,14 +16,14 @@ type DataService interface {
 }
 
 type dataService struct {
-	flightStorage storage.FlightStorage
-	ticketStorage storage.TicketStorage
+	flightStorage storage2.FlightStorage
+	ticketStorage storage2.TicketStorage
 	cfg           config.TablesConfig
 }
 
 var _ DataService = (*dataService)(nil)
 
-func NewDataService(flightStorage storage.FlightStorage, ticketStorage storage.TicketStorage) DataService {
+func NewDataService(flightStorage storage2.FlightStorage, ticketStorage storage2.TicketStorage) DataService {
 	return &dataService{flightStorage: flightStorage, ticketStorage: ticketStorage}
 }
 

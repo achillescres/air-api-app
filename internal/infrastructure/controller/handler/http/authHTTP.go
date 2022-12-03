@@ -1,10 +1,10 @@
 package httpHandler
 
 import (
-	"api-app/internal/domain/service/sto"
-	"api-app/internal/domain/storage"
-	"api-app/pkg/gin/ginresponse"
 	"errors"
+	"github.com/achillescres/saina-api/internal/domain/service/sto"
+	"github.com/achillescres/saina-api/internal/domain/storage"
+	"github.com/achillescres/saina-api/pkg/gin/ginresponse"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

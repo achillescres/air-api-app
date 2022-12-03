@@ -1,14 +1,14 @@
 package repository
 
 import (
-	"api-app/internal/domain/entity"
-	"api-app/internal/domain/storage"
-	"api-app/internal/domain/storage/dto"
-	"api-app/pkg/db/postgresql"
-	"api-app/pkg/object/oid"
 	"context"
 	"errors"
 	"fmt"
+	"github.com/achillescres/saina-api/internal/domain/entity"
+	"github.com/achillescres/saina-api/internal/domain/storage"
+	"github.com/achillescres/saina-api/internal/domain/storage/dto"
+	"github.com/achillescres/saina-api/pkg/db/postgresql"
+	"github.com/achillescres/saina-api/pkg/object/oid"
 	"github.com/georgysavva/scany/v2/pgxscan"
 	log "github.com/sirupsen/logrus"
 )

@@ -1,15 +1,15 @@
 package application
 
 import (
-	"api-app/internal/config"
-	parser "api-app/internal/infrastructure/controller/parser/filesystem"
-	"api-app/internal/product"
-	"api-app/pkg/db/postgresql"
-	"api-app/pkg/security/ajwt"
-	"api-app/pkg/security/passlib"
 	"context"
 	"errors"
 	"fmt"
+	config2 "github.com/achillescres/saina-api/internal/config"
+	"github.com/achillescres/saina-api/internal/infrastructure/controller/parser/filesystem"
+	product2 "github.com/achillescres/saina-api/internal/product"
+	postgresql2 "github.com/achillescres/saina-api/pkg/db/postgresql"
+	"github.com/achillescres/saina-api/pkg/security/ajwt"
+	"github.com/achillescres/saina-api/pkg/security/passlib"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
@@ -20,25 +20,26 @@ type App interface {
 }
 
 type app struct {
-	cfg        config.AppConfig
-	httpServer *product.Routers
-	pgPool     postgresql.PGXPool
+	cfg        config2.AppConfig
+	httpServer *product2.Routers
+	pgPool     postgresql2.PGXPool
 }
 
 func NewApp(ctx context.Context) (App, error) {
 	// Get all needed configs
 	log.Infoln("Gathering configs...")
-	envCfg := config.Env()
-	appCfg := config.App()
-	handlerCfg := config.Handler()
-	taisParserCfg := config.TaisParser()
-	dbCfg := config.Postgres()
-	authCfg := config.Auth()
+	envCfg := config2.Env()
+	appCfg := config2.App()
+	handlerCfg := config2.Handler()
+	taisParserCfg := config2.TaisParser()
+	dbCfg := config2.Postgres()
+	authCfg := config2.Auth()
 	log.Infoln("Success!")
 
+	log.Warnln(envCfg.ProjectAbsPath)
 	hashManager := passlib.NewHashManager(envCfg.PasswordHashSalt)
 	jwtManager := ajwt.NewJWTManager(hashManager, envCfg.JWTSecret, authCfg.JWTLiveTime, authCfg.RefreshTokenLiveTime)
-	pgPool, err := postgresql.NewPGXPool(ctx, &postgresql.ClientConfig{
+	pgPool, err := postgresql2.NewPGXPool(ctx, &postgresql2.ClientConfig{
 		MaxConnections:        dbCfg.MaxConnections,
 		MaxConnectionAttempts: dbCfg.MaxConnectionAttempts,
 		WaitingDuration:       dbCfg.WaitTimeout,
@@ -55,14 +56,14 @@ func NewApp(ctx context.Context) (App, error) {
 
 	// Create repositories passing to them database config
 	log.Infoln("Creating repository...")
-	repos, err := product.NewRepositories(pgPool, hashManager)
+	repos, err := product2.NewRepositories(pgPool, hashManager)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("fatal couldn't create repositories: %s", err.Error()))
 	}
 	log.Infoln("Success!")
 
 	log.Infoln("Creating services...")
-	services, err := product.NewServices(repos, &taisParserCfg, hashManager, jwtManager, authCfg)
+	services, err := product2.NewServices(repos, &taisParserCfg, hashManager, jwtManager, authCfg)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("fatal couldn't create services: %s", err.Error()))
 	}
@@ -73,14 +74,14 @@ func NewApp(ctx context.Context) (App, error) {
 	log.Infoln("Success!")
 
 	log.Infoln("Creating internet controllers(handlers)...")
-	handlers, err := product.NewHandlers(services, &handlerCfg, taisParser)
+	handlers, err := product2.NewHandlers(services, &handlerCfg, taisParser)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("fatal couldn't create handlers: %s", err.Error()))
 	}
 	log.Infoln("Success!")
 
 	log.Infoln("Building routers...")
-	router, err := product.NewRouters(handlers)
+	router, err := product2.NewRouters(handlers)
 	if err != nil {
 		return nil, err
 	}

@@ -2,7 +2,6 @@ maxConnections: 16
 maxConnectionAttempts: 3
 waitTimeoutMilliseconds: 400
 
-host: "localhost"
 port: "5432"
 database: "dev"
 schema: "public"

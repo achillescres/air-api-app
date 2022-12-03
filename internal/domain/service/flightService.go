@@ -1,11 +1,11 @@
 package service
 
 import (
-	"api-app/internal/domain/entity"
-	"api-app/internal/domain/storage"
-	"api-app/internal/domain/storage/dto"
-	"api-app/pkg/object/oid"
 	"context"
+	"github.com/achillescres/saina-api/internal/domain/entity"
+	"github.com/achillescres/saina-api/internal/domain/storage"
+	"github.com/achillescres/saina-api/internal/domain/storage/dto"
+	"github.com/achillescres/saina-api/pkg/object/oid"
 )
 
 type FlightService interface {

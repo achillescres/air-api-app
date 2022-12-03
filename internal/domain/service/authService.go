@@ -1,15 +1,15 @@
 package service
 
 import (
-	"api-app/internal/config"
-	"api-app/internal/domain/entity"
-	"api-app/internal/domain/service/sto"
-	"api-app/internal/domain/storage"
-	"api-app/internal/domain/storage/dto"
-	"api-app/pkg/object/oid"
-	"api-app/pkg/security/ajwt"
-	"api-app/pkg/security/passlib"
 	"context"
+	"github.com/achillescres/saina-api/internal/config"
+	"github.com/achillescres/saina-api/internal/domain/entity"
+	"github.com/achillescres/saina-api/internal/domain/service/sto"
+	storage2 "github.com/achillescres/saina-api/internal/domain/storage"
+	dto2 "github.com/achillescres/saina-api/internal/domain/storage/dto"
+	"github.com/achillescres/saina-api/pkg/object/oid"
+	"github.com/achillescres/saina-api/pkg/security/ajwt"
+	"github.com/achillescres/saina-api/pkg/security/passlib"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -19,8 +19,8 @@ type AuthService interface {
 }
 
 type authService struct {
-	userStorage         storage.UserStorage
-	refreshTokenStorage storage.RefreshTokenStorage
+	userStorage         storage2.UserStorage
+	refreshTokenStorage storage2.RefreshTokenStorage
 	hasher              passlib.HashManager
 	jwtManager          ajwt.JWTManager
 	cfg                 config.AuthConfig
@@ -29,8 +29,8 @@ type authService struct {
 var _ AuthService = (*authService)(nil)
 
 func NewAuthService(
-	userStorage storage.UserStorage,
-	refreshTokenStorage storage.RefreshTokenStorage,
+	userStorage storage2.UserStorage,
+	refreshTokenStorage storage2.RefreshTokenStorage,
 	hasher passlib.HashManager,
 	jwtManager ajwt.JWTManager,
 	cfg config.AuthConfig,
@@ -39,7 +39,7 @@ func NewAuthService(
 }
 
 func (aS *authService) RegisterUser(ctx context.Context, regUserInput *sto.RegisterUserInput) (oid.Id, error) {
-	createUser := dto.NewUserCreate(regUserInput.Login, regUserInput.Password)
+	createUser := dto2.NewUserCreate(regUserInput.Login, regUserInput.Password)
 	log.Infof("registering user login=%s\n", regUserInput.Login)
 	user, err := aS.userStorage.Store(ctx, *createUser)
 	id := user.Id
@@ -56,7 +56,7 @@ func (aS *authService) createRefreshToken(ctx context.Context) (*entity.RefreshT
 		return nil, err
 	}
 
-	rTC := dto.NewRefreshTokenCreate(token, createTime, expireTime)
+	rTC := dto2.NewRefreshTokenCreate(token, createTime, expireTime)
 	rT, err := aS.refreshTokenStorage.Store(ctx, *rTC)
 	if err != nil {
 		return nil, err

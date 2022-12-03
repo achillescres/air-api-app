@@ -1,10 +1,10 @@
 package main
 
 import (
-	"api-app/internal/application"
-	"api-app/pkg/mylogging"
 	"context"
 	"fmt"
+	"github.com/achillescres/saina-api/internal/application"
+	"github.com/achillescres/saina-api/pkg/mylogging"
 	log "github.com/sirupsen/logrus"
 )
 

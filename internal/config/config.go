@@ -1,7 +1,7 @@
 package config
 
 import (
-	"api-app/pkg/gconfig"
+	"github.com/achillescres/saina-api/pkg/gconfig"
 	log "github.com/sirupsen/logrus"
 )
 

@@ -1,12 +1,14 @@
 package object
 
-import "api-app/internal/domain/entity"
+import (
+	entity2 "github.com/achillescres/saina-api/internal/domain/entity"
+)
 
 type FlightTable struct {
-	entity.Flight
-	Tickets []entity.Ticket
+	entity2.Flight
+	Tickets []entity2.Ticket `json:"tickets" binding:"required"`
 }
 
-func NewFlightTable(flight entity.Flight, capacity int) *FlightTable {
-	return &FlightTable{Flight: flight, Tickets: make([]entity.Ticket, 0, capacity)} //TODO gconfig injection
+func NewFlightTable(flight entity2.Flight, capacity int) *FlightTable {
+	return &FlightTable{Flight: flight, Tickets: make([]entity2.Ticket, 0, capacity)} //TODO gconfig injection
 }

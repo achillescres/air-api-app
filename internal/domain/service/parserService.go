@@ -1,13 +1,13 @@
 package service
 
 import (
-	"api-app/internal/config"
-	"api-app/internal/domain/storage"
-	"api-app/internal/domain/storage/dto"
-	"api-app/pkg/object/oid"
 	"context"
 	"errors"
 	"fmt"
+	"github.com/achillescres/saina-api/internal/config"
+	storage2 "github.com/achillescres/saina-api/internal/domain/storage"
+	dto2 "github.com/achillescres/saina-api/internal/domain/storage/dto"
+	"github.com/achillescres/saina-api/pkg/object/oid"
 	log "github.com/sirupsen/logrus"
 	"strconv"
 	"unicode"
@@ -19,15 +19,15 @@ type ParserService interface {
 }
 
 type parserService struct {
-	flightStorage   storage.FlightStorage
-	ticketStorage   storage.TicketStorage
+	flightStorage   storage2.FlightStorage
+	ticketStorage   storage2.TicketStorage
 	cfg             *config.TaisParserConfig
 	currentFlightId oid.Id
 }
 
 func NewParserService(
-	flightStorage storage.FlightStorage,
-	ticketStorage storage.TicketStorage,
+	flightStorage storage2.FlightStorage,
+	ticketStorage storage2.TicketStorage,
 	cfg *config.TaisParserConfig,
 ) ParserService {
 	return &parserService{flightStorage: flightStorage, ticketStorage: ticketStorage, cfg: cfg, currentFlightId: oid.Undefined}
@@ -36,7 +36,7 @@ func NewParserService(
 var _ ParserService = (*parserService)(nil)
 
 // A4 101 2022021312 KRR VKO 19502200 00SU9 0 NN 000151280.00
-func (*parserService) parseFlightRow(fields []string) (*dto.FLightCreate, error) {
+func (*parserService) parseFlightRow(fields []string) (*dto2.FLightCreate, error) {
 	if len(fields) != 10 {
 		return nil, errors.New("flight fields len must be 10")
 	}
@@ -66,7 +66,7 @@ func (*parserService) parseFlightRow(fields []string) (*dto.FLightCreate, error)
 		correctlyParsed = false
 	}
 
-	return &dto.FLightCreate{
+	return &dto2.FLightCreate{
 		AirlCode:        airlCode,
 		FltNum:          fltNum,
 		FltDate:         fltDate,
@@ -80,7 +80,7 @@ func (*parserService) parseFlightRow(fields []string) (*dto.FLightCreate, error)
 }
 
 // A4 101 2022021312B Y0100Y 00 0000000001000020000000050000000000000.00
-func (pS *parserService) parseTicketRow(flightId oid.Id, fields []string) (*dto.TicketCreate, error) {
+func (pS *parserService) parseTicketRow(flightId oid.Id, fields []string) (*dto2.TicketCreate, error) {
 	if len(fields) != 6 {
 		return nil, errors.New("ticket fields len must be 6")
 	}
@@ -115,7 +115,7 @@ func (pS *parserService) parseTicketRow(flightId oid.Id, fields []string) (*dto.
 		correctlyParsed = false
 	}
 
-	return &dto.TicketCreate{
+	return &dto2.TicketCreate{
 		FlightId:        flightId,
 		AirlCode:        airlCode,
 		FltNum:          fltNum,

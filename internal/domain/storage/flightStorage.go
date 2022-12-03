@@ -1,8 +1,8 @@
 package storage
 
 import (
-	"api-app/internal/domain/entity"
-	"api-app/internal/domain/storage/dto"
+	"github.com/achillescres/saina-api/internal/domain/entity"
+	"github.com/achillescres/saina-api/internal/domain/storage/dto"
 )
 
 type FlightStorage Storage[entity.Flight, dto.FLightCreate]

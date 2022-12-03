@@ -1,12 +1,12 @@
 package parser
 
 import (
-	"api-app/internal/config"
-	"api-app/internal/domain/service"
 	"bufio"
 	"context"
 	"errors"
 	"fmt"
+	config2 "github.com/achillescres/saina-api/internal/config"
+	"github.com/achillescres/saina-api/internal/domain/service"
 	log "github.com/sirupsen/logrus"
 	"os"
 	"path"
@@ -19,17 +19,17 @@ type TaisParser interface {
 
 type taisParser struct {
 	parserService service.ParserService
-	cfg           config.TaisParserConfig
+	cfg           config2.TaisParserConfig
 }
 
 var _ TaisParser = (*taisParser)(nil)
 
-func NewTaisParser(parserService service.ParserService, cfg config.TaisParserConfig) TaisParser {
+func NewTaisParser(parserService service.ParserService, cfg config2.TaisParserConfig) TaisParser {
 	return &taisParser{parserService: parserService, cfg: cfg}
 }
 
 func (tP *taisParser) ParseFirstTaisFile(ctx context.Context) (map[int]error, error) {
-	env := config.Env()
+	env := config2.Env()
 	taisDirPath := path.Join(env.ProjectAbsPath, tP.cfg.TaisDirPath)
 	inDir, err := os.ReadDir(taisDirPath)
 	if err != nil {

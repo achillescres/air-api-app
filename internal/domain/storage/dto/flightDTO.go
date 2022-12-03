@@ -1,8 +1,8 @@
 package dto
 
 import (
-	"api-app/internal/domain/entity"
-	"api-app/pkg/object/oid"
+	"github.com/achillescres/saina-api/internal/domain/entity"
+	"github.com/achillescres/saina-api/pkg/object/oid"
 )
 
 type FLightCreate struct {
