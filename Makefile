@@ -42,3 +42,9 @@ docker: clean
 	docker run --rm --network=host -p 7771:7771 --name saina-api ${DOCKER_USERNAME}/saina-api
 
 # docker rmi $(docker images -a -q --filter "label=sign=SAINA_TRASH_STAGE")
+
+migrate_up:
+	migrate -path ./migrations -database 'postgres://postgres:Cerfvcsa@localhost:5432/dev' up
+
+migrate-down:
+	migrate -path ./migrations -database 'postgres://postgres:Cerfvcsa@localhost:5432/dev' up
