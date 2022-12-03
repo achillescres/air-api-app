@@ -1,0 +1,7 @@
+/vendor
+/tmp
+/deprecated
+/migrations
+/testfields
+makefile
+Makefile
