@@ -37,6 +37,8 @@ func Env() EnvConfig {
 			log.Fatalf("fatal reading env: %s\n", err.Error())
 		}
 		envCfgInst.ConfigAbsPath = path.Join(envCfgInst.ProjectAbsPath, envCfgInst.ConfigPath)
+
+		log.Infoln("Env successfully gathered")
 	})
 
 	return *envCfgInst

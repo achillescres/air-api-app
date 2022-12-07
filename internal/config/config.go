@@ -13,4 +13,5 @@ func readConfig(cfgPath string, cfgInst Config) {
 	if err != nil {
 		log.Fatalf("fatal reading config: %s\n", err.Error())
 	}
+	log.Infof("successfully read %s\n", cfgPath)
 }

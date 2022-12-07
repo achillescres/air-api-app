@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	config2 "github.com/achillescres/saina-api/internal/config"
+	"github.com/achillescres/saina-api/internal/application/product"
+	"github.com/achillescres/saina-api/internal/config"
 	"github.com/achillescres/saina-api/internal/infrastructure/controller/parser/filesystem"
-	product2 "github.com/achillescres/saina-api/internal/product"
-	postgresql2 "github.com/achillescres/saina-api/pkg/db/postgresql"
+	"github.com/achillescres/saina-api/pkg/db/postgresql"
 	"github.com/achillescres/saina-api/pkg/security/ajwt"
 	"github.com/achillescres/saina-api/pkg/security/passlib"
 	log "github.com/sirupsen/logrus"
@@ -20,26 +20,30 @@ type App interface {
 }
 
 type app struct {
-	cfg        config2.AppConfig
-	httpServer *product2.Routers
-	pgPool     postgresql2.PGXPool
+	cfg        config.AppConfig
+	httpServer *product.Routers
+	pgPool     postgresql.PGXPool
 }
 
 func NewApp(ctx context.Context) (App, error) {
-	// Get all needed configs
-	log.Infoln("Gathering configs...")
-	envCfg := config2.Env()
-	appCfg := config2.App()
-	handlerCfg := config2.Handler()
-	taisParserCfg := config2.TaisParser()
-	dbCfg := config2.Postgres()
-	authCfg := config2.Auth()
-	log.Infoln("Success!")
+	// Get env config
+	log.Infoln("Gathering all configs")
+	envCfg := config.Env()
+	authCfg := config.Auth()
+	dbCfg := config.Postgres()
+	taisParserCfg := config.TaisParser()
+	middlewareCfg := config.Middleware()
+	handlerCfg := config.Handler()
+	appCfg := config.App()
 
-	log.Warnln(envCfg.ProjectAbsPath)
+	// Outer/Atomic layer managers
+	log.Infoln("Creating managers:")
 	hashManager := passlib.NewHashManager(envCfg.PasswordHashSalt)
 	jwtManager := ajwt.NewJWTManager(hashManager, envCfg.JWTSecret, authCfg.JWTLiveTime, authCfg.RefreshTokenLiveTime)
-	pgPool, err := postgresql2.NewPGXPool(ctx, &postgresql2.ClientConfig{
+
+	// Build postgres pool
+	log.Infoln("Creating pgxpool")
+	pgPool, err := postgresql.NewPGXPool(ctx, &postgresql.ClientConfig{
 		MaxConnections:        dbCfg.MaxConnections,
 		MaxConnectionAttempts: dbCfg.MaxConnectionAttempts,
 		WaitingDuration:       dbCfg.WaitTimeout,
@@ -49,39 +53,50 @@ func NewApp(ctx context.Context) (App, error) {
 		Port:                  dbCfg.Port,
 		Database:              dbCfg.Database,
 	})
-	log.Warnln(pgPool)
 	if err != nil {
 		return nil, err
 	}
+	log.Infof("This is pgxpool: %s", pgPool)
 
-	// Create repositories passing to them database config
+	// Create repositories
 	log.Infoln("Creating repository...")
-	repos, err := product2.NewRepositories(pgPool, hashManager)
+	repos, err := product.NewRepositories(pgPool, hashManager)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("fatal couldn't create repositories: %s", err.Error()))
 	}
 	log.Infoln("Success!")
 
 	log.Infoln("Creating services...")
-	services, err := product2.NewServices(repos, &taisParserCfg, hashManager, jwtManager, authCfg)
+	services, err := product.NewServices(repos, &taisParserCfg, hashManager, jwtManager, authCfg)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("fatal couldn't create services: %s", err.Error()))
 	}
 	log.Infoln("Success!")
 
-	log.Infoln("Creating filesystem controllers")
+	// Controllers layer
+	log.Infoln("Layer controllers:")
+
+	// Middleware additional-layer
+	log.Infoln("Creating middlewares")
+	middleware := product.NewMiddlewares(middlewareCfg, services.AuthService)
+
+	// Parser sub-layer
+	log.Infoln("Creating parsers")
 	taisParser := parser.NewTaisParser(services.ParserService, taisParserCfg)
 	log.Infoln("Success!")
 
-	log.Infoln("Creating internet controllers(handlers)...")
-	handlers, err := product2.NewHandlers(services, &handlerCfg, taisParser)
+	// Handler sub-layer
+	log.Infoln("Creating handlers")
+	handlers, err := product.NewHandlers(middleware, services, &handlerCfg, taisParser)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("fatal couldn't create handlers: %s", err.Error()))
 	}
 	log.Infoln("Success!")
 
+	// External framework layer
+	// Routers
 	log.Infoln("Building routers...")
-	router, err := product2.NewRouters(handlers)
+	router, err := product.NewRouters(handlers)
 	if err != nil {
 		return nil, err
 	}

@@ -16,6 +16,7 @@ import (
 type AuthService interface {
 	RegisterUser(ctx context.Context, regInput *sto.RegisterUserInput) (oid.Id, error)
 	LoginUser(ctx context.Context, loginUserInput *sto.LoginUserInput) (*string, *string, error)
+	ParseUserToken(ctx context.Context, token string) (string, error)
 }
 
 type authService struct {
@@ -76,7 +77,7 @@ func (aS *authService) LoginUser(ctx context.Context, loginUserInput *sto.LoginU
 		return nil, nil, err
 	}
 
-	jwtT, err := aS.jwtManager.User(user.Login, user.HashedPassword)
+	jwtT, err := aS.jwtManager.User(string(user.Id), user.Login, user.HashedPassword)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -87,4 +88,13 @@ func (aS *authService) LoginUser(ctx context.Context, loginUserInput *sto.LoginU
 	}
 
 	return &jwtT, &refreshToken.Token, nil
+}
+
+func (aS *authService) ParseUserToken(ctx context.Context, token string) (string, error) {
+	user, err := aS.jwtManager.ParseUser(token)
+	if err != nil {
+		return "", err
+	}
+
+	return user.Id, nil
 }
