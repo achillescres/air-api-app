@@ -8,8 +8,9 @@ import (
 const taisParserConfigFilename = "parser.config.yaml"
 
 type TaisParserConfig struct {
-	TaisDirPath             string `yaml:"taisDirPath" env-required:"true"`
-	TotalCashDelimiterIndex int    `yaml:"totalCashDelimiterIndex" env-required:"true"`
+	TaisDirPath                 string `yaml:"taisDirPath" env-required:"true"`
+	TotalCashDelimiterIndex     int    `yaml:"totalCashDelimiterIndex" env-required:"true"`
+	DefaultFlightsSliceCapacity int    `yaml:"defaultFlightsSliceCapacity" env-required:"true"`
 }
 
 var (

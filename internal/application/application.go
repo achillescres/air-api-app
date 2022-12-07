@@ -17,12 +17,14 @@ import (
 type App interface {
 	Run(ctx context.Context) error
 	runHTTP() error
+	runTaisManager() error
 }
 
 type app struct {
-	cfg        config.AppConfig
-	httpServer *product.Routers
-	pgPool     postgresql.PGXPool
+	cfg         config.AppConfig
+	httpServer  *product.Routers
+	pgPool      postgresql.PGXPool
+	taisManager parser.TaisParser
 }
 
 func NewApp(ctx context.Context) (App, error) {
@@ -101,30 +103,13 @@ func NewApp(ctx context.Context) (App, error) {
 		return nil, err
 	}
 
-	// In this case I distinguished parsers as another type of controllers
+	// I distinguished parsers as another type of controllers
 	// For now there's only the TAIS File parser, this is executing artificially at start of the app
-	// TODO normally IMPLEMENT TAIS FILE PARSING
-	//go func() {
-	//	err := taisParser.ParseFirstTaisFile(ctx)
-	//	if err != nil {
-	//		log.Fatalf("fatal INITIAL PARSE tais file: %s\n", err.Error())
-	//	}
-	//}()
-	// ---
-
-	// TODO think what to do with this
-	//router.GET("/api/_parse", func(c *gin.Context) {
-	//	err := taisParser.ParseFirstTaisFile(c)
-	//	if err != nil {
-	//		log.Errorf("error parsing tais file: %s\n", err.Error())
-	//		c.AbortWithStatus(http.StatusInternalServerError)
-	//	}
-	//})
-
 	return &app{
-		httpServer: router,
-		cfg:        appCfg,
-		pgPool:     pgPool,
+		httpServer:  router,
+		cfg:         appCfg,
+		pgPool:      pgPool,
+		taisManager: taisParser,
 	}, nil
 }
 
@@ -153,4 +138,7 @@ func (app *app) runHTTP() error {
 		log.Infof("Listening to %s\n", addr)
 	}
 	return err
+}
+func (app *app) runTaisManager() error {
+
 }

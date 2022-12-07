@@ -22,11 +22,9 @@ WORKDIR /app
 COPY /external ./external
 COPY .env .
 COPY --from=build /github.com/achillescres/saina-api/saina-api .
-RUN ls
 
 EXPOSE 7771
 
 ENV PROJECT_ABS_PATH "/app"
-ENV DB_HOST "localhost"
 
 CMD ["./saina-api"]
