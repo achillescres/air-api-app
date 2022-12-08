@@ -17,3 +17,29 @@ type Flight struct {
 	TotalCash       float64 `json:"totalCash" db:"total_cash" binding:"required"`
 	CorrectlyParsed bool    `json:"correctlyParsed" db:"correctly_parsed" binding:"required"`
 }
+
+func NewFlight(
+	id oid.Id,
+	airlCode string,
+	fltNum string,
+	fltDate string,
+	origIATA string,
+	destIATA string,
+	departureTime string,
+	arrivalTime string,
+	totalCash float64,
+	correctlyParsed bool,
+) *Flight {
+	return &Flight{
+		Id:              id,
+		AirlCode:        airlCode,
+		FltNum:          fltNum,
+		FltDate:         fltDate,
+		OrigIATA:        origIATA,
+		DestIATA:        destIATA,
+		DepartureTime:   departureTime,
+		ArrivalTime:     arrivalTime,
+		TotalCash:       totalCash,
+		CorrectlyParsed: correctlyParsed,
+	}
+}

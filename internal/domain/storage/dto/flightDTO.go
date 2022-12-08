@@ -19,16 +19,16 @@ type FLightCreate struct {
 }
 
 func (fC *FLightCreate) ToEntity(id oid.Id) *entity.Flight {
-	return &entity.Flight{
-		Id:              id,
-		AirlCode:        fC.AirlCode,
-		FltNum:          fC.FltNum,
-		FltDate:         fC.FltDate,
-		OrigIATA:        fC.OrigIATA,
-		DestIATA:        fC.DestIATA,
-		DepartureTime:   fC.DepartureTime,
-		ArrivalTime:     fC.ArrivalTime,
-		TotalCash:       fC.TotalCash,
-		CorrectlyParsed: fC.CorrectlyParsed,
-	}
+	return entity.NewFlight(
+		id,
+		fC.AirlCode,
+		fC.FltNum,
+		fC.FltDate,
+		fC.OrigIATA,
+		fC.DestIATA,
+		fC.DepartureTime,
+		fC.ArrivalTime,
+		fC.TotalCash,
+		fC.CorrectlyParsed,
+	)
 }

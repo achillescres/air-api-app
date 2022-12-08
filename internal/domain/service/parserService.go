@@ -9,15 +9,14 @@ import (
 )
 
 type ParserService interface {
-	PassFlight(ctx context.Context, fC dto.FLightCreate) error
-	PassTicket(ctx context.Context, tC dto.TicketCreate) error
+	PassFlight(ctx context.Context, fC *dto.FLightCreate) (oid.Id, string, error)
+	PassTicket(ctx context.Context, tC *dto.TicketCreate) error
 }
 
 type parserService struct {
-	flightStorage   storage.FlightStorage
-	ticketStorage   storage.TicketStorage
-	cfg             *config.TaisParserConfig
-	currentFlightId oid.Id
+	flightStorage storage.FlightStorage
+	ticketStorage storage.TicketStorage
+	cfg           *config.TaisParserConfig
 }
 
 func NewParserService(
@@ -25,24 +24,23 @@ func NewParserService(
 	ticketStorage storage.TicketStorage,
 	cfg *config.TaisParserConfig,
 ) ParserService {
-	return &parserService{flightStorage: flightStorage, ticketStorage: ticketStorage, cfg: cfg, currentFlightId: oid.Undefined}
+	return &parserService{flightStorage: flightStorage, ticketStorage: ticketStorage, cfg: cfg}
 }
 
 var _ ParserService = (*parserService)(nil)
 
-func (pS *parserService) PassFlight(ctx context.Context, fC dto.FLightCreate) error {
-	flight, err := pS.flightStorage.Store(ctx, fC)
-	pS.currentFlightId = flight.Id
+func (pS *parserService) PassFlight(ctx context.Context, fC *dto.FLightCreate) (oid.Id, string, error) {
+	flight, err := pS.flightStorage.Store(ctx, *fC)
 	if err != nil {
-		return err
+		return "", "", err
 	}
 
-	return nil
+	return flight.Id, flight.FltNum, nil
 }
 
-func (pS *parserService) PassTicket(ctx context.Context, tC dto.TicketCreate) error {
+func (pS *parserService) PassTicket(ctx context.Context, tC *dto.TicketCreate) error {
 	// TODO flightId
-	_, err := pS.ticketStorage.Store(ctx, tC)
+	_, err := pS.ticketStorage.Store(ctx, *tC)
 	if err != nil {
 		return err
 	}

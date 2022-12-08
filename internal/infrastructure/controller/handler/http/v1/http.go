@@ -29,7 +29,7 @@ func NewHandler(middleware httpMiddleware.Middleware, authService service2.AuthS
 var _ Handler = (*handler)(nil)
 
 func (h *handler) _parse(c *gin.Context) {
-	_, err := h.taisParser.ParseFirstTaisFile(c)
+	_, _, err := h.taisParser.ParseFirstTaisFile(c)
 	if err != nil {
 		ginresponse.WithError(c, http.StatusInternalServerError, err, "couldn't parse tais file")
 		return

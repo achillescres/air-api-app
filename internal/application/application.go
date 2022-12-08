@@ -140,5 +140,5 @@ func (app *app) runHTTP() error {
 	return err
 }
 func (app *app) runTaisManager() error {
-
+	return nil
 }

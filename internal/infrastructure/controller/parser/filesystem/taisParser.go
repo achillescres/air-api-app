@@ -18,7 +18,7 @@ import (
 )
 
 type TaisParser interface {
-	ParseFirstTaisFile(ctx context.Context) (map[int]error, error)
+	ParseFirstTaisFile(ctx context.Context) (*string, map[int]error, error)
 }
 
 type taisParser struct {
@@ -32,13 +32,13 @@ func NewTaisParser(parserService service.ParserService, cfg config.TaisParserCon
 	return &taisParser{parserService: parserService, cfg: cfg}
 }
 
-func (tP *taisParser) ParseFirstTaisFile(ctx context.Context) (map[int]error, error) {
+func (tP *taisParser) ParseFirstTaisFile(ctx context.Context) (*string, map[int]error, error) {
 	env := config.Env()
 	taisDirPath := path.Join(env.ProjectAbsPath, tP.cfg.TaisDirPath)
 	dirEntries, err := os.ReadDir(taisDirPath)
 	if err != nil {
 		log.Errorf("error (TaisParser) scanning tais directory=%s: %s\n", taisDirPath, err.Error())
-		return nil, err
+		return nil, nil, err
 	}
 
 	taisFileName := ""
@@ -50,7 +50,7 @@ func (tP *taisParser) ParseFirstTaisFile(ctx context.Context) (map[int]error, er
 
 	if taisFileName == "" {
 		log.Errorf("error (TaisParser) didnt find tais file in tais dir=%s\n", taisDirPath)
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			fmt.Sprintf("error (TaisParser) didnt find tais file in tais dir=%s", taisDirPath),
 		)
 	}
@@ -59,7 +59,7 @@ func (tP *taisParser) ParseFirstTaisFile(ctx context.Context) (map[int]error, er
 	f, err := os.OpenFile(taisFilePath, os.O_RDONLY, os.ModePerm)
 	if err != nil {
 		log.Errorf("error (TaisParser) opening file for parse: %s\n", err.Error())
-		return nil, err
+		return nil, nil, err
 	}
 
 	defer func() {
@@ -73,10 +73,10 @@ func (tP *taisParser) ParseFirstTaisFile(ctx context.Context) (map[int]error, er
 	sc.Split(bufio.ScanLines)
 	if !sc.Scan() {
 		log.Errorln("error tais parse file is empty")
-		return nil, errors.New("error parse file is empty")
+		return nil, nil, errors.New("error parse file is empty")
 	}
 
-	meta := sc.Text() // Tais file meta header
+	meta := strings.TrimSpace(sc.Text()) // Tais file meta header
 
 	rows := make([]string, 0, tP.cfg.DefaultFlightsSliceCapacity)
 	for sc.Scan() {
@@ -84,9 +84,11 @@ func (tP *taisParser) ParseFirstTaisFile(ctx context.Context) (map[int]error, er
 	}
 	if err := sc.Err(); err != nil {
 		log.Fatalf("error (TaisParser) reading tais file for parse: %s\n", err.Error()) // TODO remove fatals
-		return nil, err
+		return nil, nil, err
 	}
 
+	flightId := oid.Undefined
+	flightNum := ""
 	errs := map[int]error{}
 	for i, row := range rows {
 		fields := strings.Fields(strings.TrimSpace(row))
@@ -94,32 +96,28 @@ func (tP *taisParser) ParseFirstTaisFile(ctx context.Context) (map[int]error, er
 		case 10: // Flight
 			fC, err := tP.parseFlightRow(fields)
 			if err != nil {
-				log.Errorf("error (TaisParser) couldn't parse row: %s\n", err.Error())
+				log.Errorf("error (TaisParser) couldn't parse flight row: %s\n", err.Error())
 				errs[i] = err
 			}
-			err = tP.parserService.PassFlight(ctx, *fC)
+			flightId, flightNum, err = tP.parserService.PassFlight(ctx, fC)
+
 			if err != nil {
-				log.Errorf("error (TaisParser) pass flight to service: %s\n", err.Error())
+				log.Errorf("error (TaisParser) passing flight to service: %s\n", err.Error())
 			}
 		case 6: // Ticket
-			fC, err := tP.parseTicketRow(fields)
+			tC, err := tP.parseTicketRow(flightId, flightNum, fields)
 			if err != nil {
-				log.Errorf("error (TaisParser) couldn't parse row: %s\n", err.Error())
+				log.Errorf("error (TaisParser) couldn't parse ticket row: %s\n", err.Error())
 				errs[i] = err
 			}
-			err = tP.parserService.PassFlight(ctx, *fC)
+			err = tP.parserService.PassTicket(ctx, tC)
 			if err != nil {
-				log.Errorf("error (TaisParser) pass flight to service: %s\n", err.Error())
+				log.Errorf("error (TaisParser) passing flight to service: %s\n", err.Error())
 			}
-		}
-		err := tP.parserService.PassFlight(ctx)
-		if err != nil {
-			errs[i] = err
-			log.Errorf("error parsing row of tais file: %s", err.Error())
 		}
 	}
 
-	return errs, nil
+	return &meta, errs, nil // TODO implement errs usage
 }
 
 // A4 101 2022021312 KRR VKO 19502200 00SU9 0 NN 000151280.00
@@ -167,7 +165,7 @@ func (tP *taisParser) parseFlightRow(fields []string) (*dto.FLightCreate, error)
 }
 
 // A4 101 2022021312B Y0100Y 00 0000000001000020000000050000000000000.00
-func (tP *taisParser) parseTicketRow(flightId oid.Id, fields []string) (*dto.TicketCreate, error) {
+func (tP *taisParser) parseTicketRow(flightId oid.Id, flightNum string, fields []string) (*dto.TicketCreate, error) {
 	if len(fields) != 6 {
 		return nil, errors.New("ticket fields len must be 6")
 	}
@@ -202,16 +200,17 @@ func (tP *taisParser) parseTicketRow(flightId oid.Id, fields []string) (*dto.Tic
 		correctlyParsed = false
 	}
 
-	return &dto.TicketCreate{
-		FlightId:        flightId,
-		AirlCode:        airlCode,
-		FltNum:          fltNum,
-		FltDate:         fltDate,
-		TicketCode:      ticketCode,
-		TicketCapacity:  ticketCapacity,
-		TicketType:      ticketType,
-		Amount:          amount,
-		TotalCash:       totalCash,
-		CorrectlyParsed: correctlyParsed,
-	}, nil
+	return dto.NewTicketCreate(
+		flightId,
+		flightNum,
+		airlCode,
+		fltNum,
+		fltDate,
+		ticketCode,
+		ticketCapacity,
+		ticketType,
+		amount,
+		totalCash,
+		correctlyParsed,
+	), nil
 }

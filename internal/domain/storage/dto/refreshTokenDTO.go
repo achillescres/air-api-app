@@ -17,9 +17,5 @@ func NewRefreshTokenCreate(token string, createTimeUnix int64, expirationTimeUni
 }
 
 func (rTC RefreshTokenCreate) ToEntity(id oid.Id) *entity.RefreshToken {
-	return &entity.RefreshToken{
-		Token:              rTC.Token,
-		ExpirationTimeUnix: rTC.ExpirationTimeUnix,
-		CreateTimeUnix:     rTC.CreateTimeUnix,
-	}
+	return entity.NewRefreshToken(id, rTC.Token, rTC.ExpirationTimeUnix, rTC.CreateTimeUnix)
 }
