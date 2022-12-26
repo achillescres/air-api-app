@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/achillescres/saina-api/internal/application/product"
 	"github.com/achillescres/saina-api/internal/config"
-	"github.com/achillescres/saina-api/internal/infrastructure/controller/parser/filesystem"
+	"github.com/achillescres/saina-api/internal/infrastructure/controller/parser/tais"
 	"github.com/achillescres/saina-api/pkg/db/postgresql"
 	"github.com/achillescres/saina-api/pkg/security/ajwt"
 	"github.com/achillescres/saina-api/pkg/security/passlib"
@@ -38,7 +38,7 @@ func NewApp(ctx context.Context) (App, error) {
 	handlerCfg := config.Handler()
 	appCfg := config.App()
 
-	// Outer/Atomic layer managers
+	// Outer managers
 	log.Infoln("Creating managers:")
 	hashManager := passlib.NewHashManager(envCfg.PasswordHashSalt)
 	jwtManager := ajwt.NewJWTManager(hashManager, envCfg.JWTSecret, authCfg.JWTLiveTime, authCfg.RefreshTokenLiveTime)
@@ -56,7 +56,8 @@ func NewApp(ctx context.Context) (App, error) {
 		Database:              dbCfg.Database,
 	})
 	if err != nil {
-		return nil, err
+		log.Errorf("error creating pgxpool: %s\n", err)
+		//return nil, err
 	}
 	log.Infof("This is pgxpool: %s", pgPool)
 
@@ -64,14 +65,14 @@ func NewApp(ctx context.Context) (App, error) {
 	log.Infoln("Creating repository...")
 	repos, err := product.NewRepositories(pgPool, hashManager)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("fatal couldn't create repositories: %s", err.Error()))
+		return nil, errors.New(fmt.Sprintf("fatal couldn't create repositories: %s", err))
 	}
 	log.Infoln("Success!")
 
 	log.Infoln("Creating services...")
 	services, err := product.NewServices(repos, &taisParserCfg, hashManager, jwtManager, authCfg)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("fatal couldn't create services: %s", err.Error()))
+		return nil, errors.New(fmt.Sprintf("fatal couldn't create services: %s", err))
 	}
 	log.Infoln("Success!")
 
@@ -89,9 +90,9 @@ func NewApp(ctx context.Context) (App, error) {
 
 	// Handler sub-layer
 	log.Infoln("Creating handlers")
-	handlers, err := product.NewHandlers(middleware, services, &handlerCfg, taisParser)
+	handlers, err := product.NewControllers(middleware, services, &handlerCfg, taisParser)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("fatal couldn't create handlers: %s", err.Error()))
+		return nil, errors.New(fmt.Sprintf("fatal couldn't create handlers: %s", err))
 	}
 	log.Infoln("Success!")
 
@@ -120,6 +121,10 @@ func (app *app) Run(ctx context.Context) error {
 		return app.runHTTP()
 	})
 
+	grp.Go(func() error {
+		return app.runTaisManager()
+	})
+
 	return grp.Wait()
 }
 
@@ -139,6 +144,8 @@ func (app *app) runHTTP() error {
 	}
 	return err
 }
+
 func (app *app) runTaisManager() error {
+
 	return nil
 }

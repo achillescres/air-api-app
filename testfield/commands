@@ -1,3 +1,6 @@
 docker run --name postgres -d -e POSTGRES_PASSWORD=Cerfvcsa -e POSTGRES_DB=dev -p 5432:5432 postgres
 
 migrate -path ./migrations -database 'postgresql://postgres:Cerfvcsa@localhost:5432/dev?disable?sslmode=disable' up
+
+
+docker run -it --cap-add SYS_ADMIN --device /dev/fuse --security-opt apparmor:unconfined --env-file env.list -v /home/achillescres/ftp/secrets:/secrets --expose 21 -p 1021:21 --expose 21100 -p 21100:21100 --name ftp cr.yandex/crp9ftr22d26age3hulg/ftp-s3-gateway:1.0

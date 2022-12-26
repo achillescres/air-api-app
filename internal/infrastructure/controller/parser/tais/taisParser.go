@@ -18,7 +18,7 @@ import (
 )
 
 type TaisParser interface {
-	ParseFirstTaisFile(ctx context.Context) (*string, map[int]error, error)
+	ParseFirstTaisFile(ctx context.Context) (*string, *TaisFileParsingErrors, error)
 }
 
 type taisParser struct {
@@ -26,18 +26,26 @@ type taisParser struct {
 	cfg           config.TaisParserConfig
 }
 
-var _ TaisParser = (*taisParser)(nil)
+type TaisFileParsingErrors struct {
+	Meta string
+	Errs map[int]error
+}
 
-func NewTaisParser(parserService service.ParserService, cfg config.TaisParserConfig) TaisParser {
+func NewTaisParser(
+	parserService service.ParserService,
+	cfg config.TaisParserConfig,
+) TaisParser {
 	return &taisParser{parserService: parserService, cfg: cfg}
 }
 
-func (tP *taisParser) ParseFirstTaisFile(ctx context.Context) (*string, map[int]error, error) {
+var _ TaisParser = (*taisParser)(nil)
+
+func (tP *taisParser) ParseFirstTaisFile(ctx context.Context) (*string, *TaisFileParsingErrors, error) {
 	env := config.Env()
 	taisDirPath := path.Join(env.ProjectAbsPath, tP.cfg.TaisDirPath)
 	dirEntries, err := os.ReadDir(taisDirPath)
 	if err != nil {
-		log.Errorf("error (TaisParser) scanning tais directory=%s: %s\n", taisDirPath, err.Error())
+		log.Errorf("error (TaisParser) scanning tais directory=%s: %s\n", taisDirPath, err)
 		return nil, nil, err
 	}
 
@@ -58,14 +66,14 @@ func (tP *taisParser) ParseFirstTaisFile(ctx context.Context) (*string, map[int]
 	taisFilePath := path.Join(taisDirPath, taisFileName)
 	f, err := os.OpenFile(taisFilePath, os.O_RDONLY, os.ModePerm)
 	if err != nil {
-		log.Errorf("error (TaisParser) opening file for parse: %s\n", err.Error())
+		log.Errorf("error (TaisParser) opening file for parse: %s\n", err)
 		return nil, nil, err
 	}
 
 	defer func() {
 		err := f.Close()
 		if err != nil {
-			log.Errorf("error closing tais file=%s: %s\n", f.Name(), err.Error())
+			log.Errorf("error closing tais file=%s: %s\n", f.Name(), err)
 		}
 	}()
 
@@ -83,36 +91,35 @@ func (tP *taisParser) ParseFirstTaisFile(ctx context.Context) (*string, map[int]
 		rows = append(rows, sc.Text())
 	}
 	if err := sc.Err(); err != nil {
-		log.Fatalf("error (TaisParser) reading tais file for parse: %s\n", err.Error()) // TODO remove fatals
+		log.Fatalf("error (TaisParser) reading tais file for parse: %s\n", err) // TODO remove fatals
 		return nil, nil, err
 	}
 
+	currentFlightIsCorrupted := false
 	flightId := oid.Undefined
 	flightNum := ""
-	errs := map[int]error{}
+	errs := new(TaisFileParsingErrors)
+	errs.Meta = meta
 	for i, row := range rows {
 		fields := strings.Fields(strings.TrimSpace(row))
 		switch len(fields) {
 		case 10: // Flight
-			fC, err := tP.parseFlightRow(fields)
-			if err != nil {
-				log.Errorf("error (TaisParser) couldn't parse flight row: %s\n", err.Error())
-				errs[i] = err
-			}
+			currentFlightIsCorrupted = false
+			fC := tP.parseFlightRow(*(*[10]string)(fields))
 			flightId, flightNum, err = tP.parserService.PassFlight(ctx, fC)
-
 			if err != nil {
-				log.Errorf("error (TaisParser) passing flight to service: %s\n", err.Error())
+				log.Errorf("error storing new flight: %s", err)
+				errs.Errs[i] = err
 			}
 		case 6: // Ticket
-			tC, err := tP.parseTicketRow(flightId, flightNum, fields)
-			if err != nil {
-				log.Errorf("error (TaisParser) couldn't parse ticket row: %s\n", err.Error())
-				errs[i] = err
+			if !currentFlightIsCorrupted {
+				continue
 			}
+			tC := tP.parseTicketRow(flightId, flightNum, *(*[6]string)(fields))
 			err = tP.parserService.PassTicket(ctx, tC)
 			if err != nil {
-				log.Errorf("error (TaisParser) passing flight to service: %s\n", err.Error())
+				log.Errorf("error (TaisParser) passing flight to service: %s\n", err)
+				errs.Errs[i] = err
 			}
 		}
 	}
@@ -121,11 +128,7 @@ func (tP *taisParser) ParseFirstTaisFile(ctx context.Context) (*string, map[int]
 }
 
 // A4 101 2022021312 KRR VKO 19502200 00SU9 0 NN 000151280.00
-func (tP *taisParser) parseFlightRow(fields []string) (*dto.FLightCreate, error) {
-	if len(fields) != 10 {
-		return nil, errors.New("flight fields len must be 10")
-	}
-
+func (tP *taisParser) parseFlightRow(fields [10]string) *dto.FLightCreate {
 	correctlyParsed := true
 
 	airlCode := fields[0]
@@ -161,15 +164,11 @@ func (tP *taisParser) parseFlightRow(fields []string) (*dto.FLightCreate, error)
 		ArrivalTime:     arriveTime,
 		TotalCash:       totalCash,
 		CorrectlyParsed: correctlyParsed,
-	}, nil
+	}
 }
 
 // A4 101 2022021312B Y0100Y 00 0000000001000020000000050000000000000.00
-func (tP *taisParser) parseTicketRow(flightId oid.Id, flightNum string, fields []string) (*dto.TicketCreate, error) {
-	if len(fields) != 6 {
-		return nil, errors.New("ticket fields len must be 6")
-	}
-
+func (tP *taisParser) parseTicketRow(flightId oid.Id, flightNum string, fields [6]string) *dto.TicketCreate {
 	correctlyParsed := true
 	airlCode := fields[0]
 	fltNum := fields[1]
@@ -177,7 +176,7 @@ func (tP *taisParser) parseTicketRow(flightId oid.Id, flightNum string, fields [
 	ticketCode := fields[3]
 	ticketCapacity, err := strconv.Atoi(fields[3][1:5])
 	if err != nil {
-		log.Errorf("error cant atoi ticket capacity: %s\n", err.Error())
+		log.Errorf("error cant atoi ticket capacity: %s\n", err)
 		ticketCapacity = -1
 		correctlyParsed = false
 	}
@@ -188,14 +187,14 @@ func (tP *taisParser) parseTicketRow(flightId oid.Id, flightNum string, fields [
 
 	amount, err := strconv.Atoi(fields[5][:3+1])
 	if err != nil {
-		log.Errorf("error cant parse ticket amount: %s\n", err.Error())
+		log.Errorf("error cant parse ticket amount: %s\n", err)
 		amount = -1
 		correctlyParsed = false
 	}
 
 	totalCash, err := strconv.ParseFloat(fields[5][tP.cfg.TotalCashDelimiterIndex+1:], 32)
 	if err != nil {
-		log.Errorf("error cant parse ticket total cash: %s\n", err.Error())
+		log.Errorf("error cant parse ticket total cash: %s\n", err)
 		totalCash = -1
 		correctlyParsed = false
 	}
@@ -212,5 +211,5 @@ func (tP *taisParser) parseTicketRow(flightId oid.Id, flightNum string, fields [
 		amount,
 		totalCash,
 		correctlyParsed,
-	), nil
+	)
 }

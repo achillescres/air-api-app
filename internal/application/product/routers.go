@@ -8,7 +8,7 @@ type Routers struct {
 	*gin.Engine
 }
 
-func NewRouters(handlers Handlers) (*Routers, error) {
+func NewRouters(handlers Controllers) (*Routers, error) {
 	r := gin.Default()
 
 	root := r.Group("/")

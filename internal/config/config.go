@@ -5,13 +5,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type Config interface{}
-
-func readConfig(cfgPath string, cfgInst Config) {
+func readConfig(cfgPath string, cfgInst gconfig.Config) {
 	log.Infof("reading %s\n", cfgPath)
 	err := gconfig.ReadConfig(cfgPath, cfgInst)
 	if err != nil {
-		log.Fatalf("fatal reading config: %s\n", err.Error())
+		log.Fatalf("fatal reading config: %s\n", err)
 	}
 	log.Infof("successfully read %s\n", cfgPath)
 }

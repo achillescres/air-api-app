@@ -18,11 +18,11 @@ func main() {
 	log.Infoln("Creating app...")
 	app, err := application.NewApp(ctx)
 	if err != nil {
-		log.Fatalf(fmt.Sprintf("fatal creating new app: %s\n", err.Error()))
+		log.Fatalf(fmt.Sprintf("fatal creating new app: %s\n", err))
 	}
 
 	err = app.Run(ctx)
 	if err != nil {
-		log.Fatalf("fatal on or while running app: %s\n", err.Error())
+		log.Fatalf("fatal on or while running app: %s\n", err)
 	}
 }

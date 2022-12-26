@@ -2,15 +2,15 @@ package product
 
 import (
 	"github.com/achillescres/saina-api/internal/config"
-	service2 "github.com/achillescres/saina-api/internal/domain/service"
+	service "github.com/achillescres/saina-api/internal/domain/service"
 	"github.com/achillescres/saina-api/pkg/security/ajwt"
 	"github.com/achillescres/saina-api/pkg/security/passlib"
 )
 
 type Services struct {
-	AuthService   service2.AuthService
-	ParserService service2.ParserService
-	TablesService service2.DataService
+	AuthService   service.AuthService
+	ParserService service.ParserService
+	TablesService service.DataService
 }
 
 func NewServices(
@@ -21,8 +21,8 @@ func NewServices(
 	cfg config.AuthConfig,
 ) (*Services, error) {
 	return &Services{
-		AuthService:   service2.NewAuthService(repos.UserRepo, repos.RefreshTokenRepo, hasher, jwtManager, cfg),
-		ParserService: service2.NewParserService(repos.FlightRepo, repos.TicketRepo, taisParserConfig),
-		TablesService: service2.NewDataService(repos.FlightRepo, repos.TicketRepo),
+		AuthService:   service.NewAuthService(repos.UserRepo, repos.RefreshTokenRepo, hasher, jwtManager, cfg),
+		ParserService: service.NewParserService(repos.FlightRepo, repos.TicketRepo, taisParserConfig),
+		TablesService: service.NewDataService(repos.FlightRepo, repos.TicketRepo),
 	}, nil
 }

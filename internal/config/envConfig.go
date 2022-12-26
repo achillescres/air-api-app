@@ -1,12 +1,13 @@
 package config
 
 import (
-	"github.com/ilyakaznacheev/cleanenv"
-	"github.com/joho/godotenv"
+	"github.com/achillescres/saina-api/pkg/gconfig"
 	log "github.com/sirupsen/logrus"
 	"path"
 	"sync"
 )
+
+const envFilename = ".env"
 
 // EnvConfig Env
 type EnvConfig struct {
@@ -28,17 +29,14 @@ var (
 
 func Env() EnvConfig {
 	loadEnvOnce.Do(func() {
-		err := godotenv.Load(".env")
+		err := gconfig.ReadEnv(envFilename, envCfgInst)
 		if err != nil {
-			log.Fatalf("fatal loading .env: %s\n", err.Error())
+			log.Fatalf("fatal reading env: %s\n", err)
 		}
-		err = cleanenv.ReadEnv(envCfgInst)
-		if err != nil {
-			log.Fatalf("fatal reading env: %s\n", err.Error())
-		}
+
 		envCfgInst.ConfigAbsPath = path.Join(envCfgInst.ProjectAbsPath, envCfgInst.ConfigPath)
 
-		log.Infoln("Env successfully gathered")
+		log.Infoln("Env successfully read")
 	})
 
 	return *envCfgInst

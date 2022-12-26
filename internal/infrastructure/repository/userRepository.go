@@ -74,17 +74,17 @@ func (uRepo *userRepository) Store(ctx context.Context, uC dto.UserCreate) (*ent
 	)
 	defer rows.Close()
 	if err != nil {
-		log.Errorf("error inserting new user: %s\n", err.Error())
+		log.Errorf("error inserting new user: %s\n", err)
 		return &entity.User{}, err
 	}
 
 	if !rows.Next() {
 		err := errors.New("error there's no returned id from sql")
-		log.Errorln(err.Error())
+		log.Errorln(err)
 		// TODO implement it without using id, instead use login
 		//_, err = uRepo.DeleteById(ctx, newUser.Id)
 		//if err != nil {
-		//	log.Errorf("I even couldn't delete this user from repository (TT): %s", err.Error())
+		//	log.Errorf("I even couldn't delete this user from repository (TT): %s", err)
 		//}
 		return newUser, err
 	}
@@ -92,7 +92,7 @@ func (uRepo *userRepository) Store(ctx context.Context, uC dto.UserCreate) (*ent
 	var id string
 	err = rows.Scan(&id)
 	if err != nil {
-		log.Errorf("error scanning new newUser id: %s\n", err.Error())
+		log.Errorf("error scanning new newUser id: %s\n", err)
 		id = string(oid.Undefined)
 	}
 

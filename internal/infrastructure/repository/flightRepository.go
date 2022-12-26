@@ -35,7 +35,7 @@ func (fRepo *flightRepository) GetAll(ctx context.Context) ([]*entity.Flight, er
 	fmt.Println(fRepo.pool)
 	rows, err := fRepo.pool.Query(ctx, "SELECT * FROM public.flights")
 	if err != nil {
-		log.Errorf("error can't get all flights: %s", err.Error())
+		log.Errorf("error can't get all flights: %s", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -43,7 +43,7 @@ func (fRepo *flightRepository) GetAll(ctx context.Context) ([]*entity.Flight, er
 	var flights []*entity.Flight
 	err = pgxscan.ScanAll(&flights, rows)
 	if err != nil {
-		log.Errorf("error scanning rows of flights: %s", err.Error())
+		log.Errorf("error scanning rows of flights: %s", err)
 		return nil, err
 	}
 	fmt.Println(flights)
@@ -80,20 +80,20 @@ func (fRepo *flightRepository) Store(ctx context.Context, fC dto.FLightCreate) (
 		fC.CorrectlyParsed,
 	)
 	if err != nil {
-		log.Errorf("error inserting new flight: %s\n", err.Error())
+		log.Errorf("error inserting new flight: %s\n", err)
 		return nil, err
 	}
 	defer query.Close()
 
 	if !query.Next() {
 		err := errors.New("error there's no returned id from sql")
-		log.Errorln(err.Error())
+		log.Errorln(err)
 		return nil, err // TODO WHAT TO DO WTF???!!!?
 	}
 	var id string
 	err = query.Scan(&id)
 	if err != nil {
-		log.Errorf("error scanning new newFlight id: %s\n", err.Error())
+		log.Errorf("error scanning new newFlight id: %s\n", err)
 		return nil, err // TODO WHAT TO DO WTF??!?!?!?!?
 	}
 

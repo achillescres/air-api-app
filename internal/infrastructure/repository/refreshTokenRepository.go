@@ -61,7 +61,7 @@ func (rTR *refreshTokenRepository) Store(ctx context.Context, rTC dto.RefreshTok
 	defer query.Close()
 	if !query.Next() {
 		err := errors.New("error sql didn't return id of new RefreshToken")
-		log.Errorln(err.Error()) // TODO wtf
+		log.Errorln(err) // TODO wtf
 		return nil, err
 	}
 

@@ -40,7 +40,7 @@ func (tRepo *ticketRepository) GetAll(ctx context.Context) ([]*entity.Ticket, er
 	var tickets []*entity.Ticket
 	err = pgxscan.ScanAll(&tickets, rows)
 	if err != nil {
-		log.Errorf("error scanning rows of tickets: %s", err.Error())
+		log.Errorf("error scanning rows of tickets: %s", err)
 		return nil, err
 	}
 
@@ -74,13 +74,13 @@ func (tRepo *ticketRepository) Store(ctx context.Context, tC dto.TicketCreate) (
 	)
 	defer query.Close()
 	if err != nil {
-		log.Errorf("error inserting new flight: %s\n", err.Error())
+		log.Errorf("error inserting new flight: %s\n", err)
 		return nil, err
 	}
 
 	if !query.Next() {
 		err := errors.New("error sql didn't return id of new Ticket")
-		log.Errorln(err.Error())
+		log.Errorln(err)
 
 		return nil, err // TODO WHAT TO DO WTF???!!!?
 	}
@@ -88,7 +88,7 @@ func (tRepo *ticketRepository) Store(ctx context.Context, tC dto.TicketCreate) (
 	var id string
 	err = query.Scan(&id)
 	if err != nil {
-		log.Errorf("error scanning new newTicket id: %s\n", err.Error())
+		log.Errorf("error scanning new newTicket id: %s\n", err)
 		return nil, err // TODO WHAT TO DO WTF??!?!?!?!?
 	}
 

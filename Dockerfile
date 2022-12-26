@@ -14,7 +14,7 @@ RUN go mod tidy
 RUN GOOS=linux go build -o saina-api cmd/main.go
 RUN ls
 
-# Step 2 - run
+# Step 2 - prepare
 FROM alpine
 
 WORKDIR /app
