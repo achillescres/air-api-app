@@ -15,13 +15,13 @@ func (h *handler) Register(c *gin.Context) {
 	registerInput := &sto.RegisterUserInput{}
 	err := c.ShouldBindJSON(registerInput)
 	if err != nil {
-		ginresponse.WithError(c, http.StatusUnprocessableEntity, err, "invalid object format")
+		ginresponse.Error(c, http.StatusUnprocessableEntity, err, "invalid object format")
 		return
 	}
 
 	id, err := h.authService.RegisterUser(c, registerInput)
 	if err != nil {
-		ginresponse.WithError(c, http.StatusInternalServerError, err, "error registering user")
+		ginresponse.Error(c, http.StatusInternalServerError, err, "error registering user")
 		return
 	}
 
@@ -32,18 +32,18 @@ func (h *handler) Login(c *gin.Context) {
 	loginUserInput := sto.LoginUserInput{}
 	err := c.ShouldBindJSON(&loginUserInput)
 	if err != nil {
-		ginresponse.WithError(c, http.StatusUnprocessableEntity, err, "invalid object format")
+		ginresponse.Error(c, http.StatusUnprocessableEntity, err, "invalid object format")
 		return
 	}
 
 	jwtToken, refreshToken, err := h.authService.LoginUser(c, &loginUserInput)
 	if errors.Is(err, storage.ErrNotFound) {
-		ginresponse.WithError(c, http.StatusBadRequest, err, "invalid login or password")
+		ginresponse.Error(c, http.StatusBadRequest, err, "invalid login or password")
 		return
 	}
 
 	if err != nil {
-		ginresponse.WithError(c, http.StatusInternalServerError, err, "couldn't get user")
+		ginresponse.Error(c, http.StatusInternalServerError, err, "couldn't get user")
 		return
 	}
 
@@ -56,6 +56,7 @@ func (h *handler) Logout(c *gin.Context) {
 }
 
 func (h *handler) registerAuth(r *gin.RouterGroup) {
+	r = r.Group("/auth")
 	r.POST("/register", h.Register)
 	r.POST("/login", h.Login)
 	r.POST("/logout", h.Logout)

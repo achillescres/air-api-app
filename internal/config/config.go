@@ -9,7 +9,7 @@ func readConfig(cfgPath string, cfgInst gconfig.Config) {
 	log.Infof("reading %s\n", cfgPath)
 	err := gconfig.ReadConfig(cfgPath, cfgInst)
 	if err != nil {
-		log.Fatalf("fatal reading config: %s\n", err)
+		//log.Fatalf("fatal reading config: %s\n", err)
 	}
-	log.Infof("successfully read %s\n", cfgPath)
+	//log.Infof("successfully read %s\n", cfgPath)
 }

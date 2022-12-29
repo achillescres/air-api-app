@@ -3,6 +3,8 @@ include .env
 PROJECT_NAME=$(shell basename "$(PWD)")
 DOCKER_USERNAME=achillescres
 
+export PROJECT_ABS_PATH := /home/achillescres/GolandProjects/air-api-app
+
 # Utils
 clean:
 	go clean
@@ -15,15 +17,16 @@ i:
 vet:
 	go vet
 
+
 # Build
 build:
 	GOOS=linux go build -o saina-api cmd/main.go
 
-# Naked(without docker)
-nrun:
+run:
 	./saina-api
 
-bnr: build nrun
+# Naked(without docker)
+bnr: build run
 
 SAINA_TRASH_STAGE=saina_trash_stage
 
@@ -43,8 +46,8 @@ docker: clean
 
 # docker rmi $(docker images -a -q --filter "label=sign=SAINA_TRASH_STAGE")
 
-migrate_up:
+mup:
 	migrate -path ./migrations -database 'postgres://postgres:Cerfvcsa@localhost:5432/dev' up
 
-migrate-down:
+mdown:
 	migrate -path ./migrations -database 'postgres://postgres:Cerfvcsa@localhost:5432/dev' up

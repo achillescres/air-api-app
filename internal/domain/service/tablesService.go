@@ -6,12 +6,12 @@ import (
 	"github.com/achillescres/saina-api/internal/domain/entity"
 	"github.com/achillescres/saina-api/internal/domain/object"
 	storage2 "github.com/achillescres/saina-api/internal/domain/storage"
-	"github.com/achillescres/saina-api/internal/infrastructure/controller/sto"
+	"github.com/achillescres/saina-api/internal/infrastructure/controller/safeObject"
 	"github.com/achillescres/saina-api/pkg/object/oid"
 )
 
 type DataService interface {
-	GetAllFlightTables(ctx context.Context) ([]*sto.FlightTableSTO, error)
+	GetAllFlightTables(ctx context.Context) ([]*safeObject.FlightTableSafe, error)
 	GetAllFlightsInMap(ctx context.Context) (map[oid.Id]*entity.Flight, error)
 }
 
@@ -27,7 +27,7 @@ func NewDataService(flightStorage storage2.FlightStorage, ticketStorage storage2
 	return &dataService{flightStorage: flightStorage, ticketStorage: ticketStorage}
 }
 
-func (dataS *dataService) GetAllFlightTables(ctx context.Context) ([]*sto.FlightTableSTO, error) {
+func (dataS *dataService) GetAllFlightTables(ctx context.Context) ([]*safeObject.FlightTableSafe, error) {
 	flights, err := dataS.flightStorage.GetAllInMap(ctx)
 	if err != nil {
 		return nil, err
@@ -37,12 +37,12 @@ func (dataS *dataService) GetAllFlightTables(ctx context.Context) ([]*sto.Flight
 		return nil, err
 	}
 
-	fTableSTOsMap := map[oid.Id]*sto.FlightTableSTO{}
+	fTableSTOsMap := map[oid.Id]*safeObject.FlightTableSafe{}
 
 	for _, ticket := range tickets {
 		_, contains := fTableSTOsMap[ticket.FlightId]
 		if !contains {
-			fTableSTOsMap[ticket.FlightId] = sto.ToFlightTableSTO(object.NewFlightTable(
+			fTableSTOsMap[ticket.FlightId] = safeObject.ToFlightTableSafe(object.NewFlightTable(
 				*flights[ticket.FlightId],
 				dataS.cfg.FlightTableDefaultCapacity,
 			))
@@ -51,7 +51,7 @@ func (dataS *dataService) GetAllFlightTables(ctx context.Context) ([]*sto.Flight
 		fT.Tickets = append(fT.Tickets, *ticket)
 	}
 
-	fTs := make([]*sto.FlightTableSTO, len(fTableSTOsMap))
+	fTs := make([]*safeObject.FlightTableSafe, len(fTableSTOsMap))
 	i := 0
 	for _, fT := range fTableSTOsMap {
 		fTs[i] = fT

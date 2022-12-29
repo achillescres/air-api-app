@@ -8,21 +8,21 @@ import (
 )
 
 type Services struct {
-	AuthService   service.AuthService
-	ParserService service.ParserService
-	TablesService service.DataService
+	AuthService       service.AuthService
+	TaisParserService service.TaisParserService
+	TablesService     service.DataService
 }
 
 func NewServices(
 	repos *Repositories,
-	taisParserConfig *config.TaisParserConfig,
+	taisParserConfig config.TaisConfig,
 	hasher passlib.HashManager,
 	jwtManager ajwt.JWTManager,
 	cfg config.AuthConfig,
 ) (*Services, error) {
 	return &Services{
-		AuthService:   service.NewAuthService(repos.UserRepo, repos.RefreshTokenRepo, hasher, jwtManager, cfg),
-		ParserService: service.NewParserService(repos.FlightRepo, repos.TicketRepo, taisParserConfig),
-		TablesService: service.NewDataService(repos.FlightRepo, repos.TicketRepo),
+		AuthService:       service.NewAuthService(repos.UserRepo, repos.RefreshTokenRepo, hasher, jwtManager, cfg),
+		TaisParserService: service.NewParserService(repos.FlightRepo, repos.TicketRepo, taisParserConfig),
+		TablesService:     service.NewDataService(repos.FlightRepo, repos.TicketRepo),
 	}, nil
 }

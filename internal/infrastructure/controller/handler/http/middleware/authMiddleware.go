@@ -21,23 +21,23 @@ var (
 func (m *middleware) ParseAndInjectTokenMiddleware(c *gin.Context) {
 	header := c.GetHeader(m.middlewareConfig.AuthorizationHeader)
 	if header == "" {
-		ginresponse.WithError(c, http.StatusUnauthorized, errEmptyHeader, "empty auth header")
+		ginresponse.Error(c, http.StatusUnauthorized, errEmptyHeader, "empty auth header")
 		return
 	}
 
 	headerParts := strings.Split(header, " ")
 	if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-		ginresponse.WithError(c, http.StatusUnauthorized, errInvalidHeader, "invalid auth header")
+		ginresponse.Error(c, http.StatusUnauthorized, errInvalidHeader, "invalid auth header")
 	}
 
 	if headerParts[1] == "" {
-		ginresponse.WithError(c, http.StatusUnauthorized, errInvalidHeader, "token is empty")
+		ginresponse.Error(c, http.StatusUnauthorized, errInvalidHeader, "token is empty")
 	}
 	token := headerParts[1]
 
 	userId, err := m.authService.ParseUserToken(c, token)
 	if err != nil {
-		ginresponse.WithError(c, http.StatusUnauthorized, err, "couldn't parse token")
+		ginresponse.Error(c, http.StatusUnauthorized, err, "couldn't parse token")
 	}
 
 	c.Set(m.middlewareConfig.UserIdCtxKey, userId)

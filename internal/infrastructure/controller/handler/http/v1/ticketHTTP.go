@@ -19,5 +19,6 @@ func (h *handler) GetAllTicketsMap(c *gin.Context) {
 }
 
 func (h *handler) registerTicket(r *gin.RouterGroup) {
+	r = r.Group("/ticket")
 	r.GET("/getAllTicketsMap", h.GetAllTicketsMap)
 }

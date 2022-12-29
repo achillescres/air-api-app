@@ -9,7 +9,7 @@ import (
 func (h *handler) GetAllFlightTables(c *gin.Context) {
 	flightTableSTOs, err := h.dataService.GetAllFlightTables(c)
 	if err != nil {
-		ginresponse.WithError(c, http.StatusInternalServerError, err, "couldn't get all FlightTables")
+		ginresponse.Error(c, http.StatusInternalServerError, err, "couldn't get all FlightTables")
 		return
 	}
 
@@ -17,5 +17,6 @@ func (h *handler) GetAllFlightTables(c *gin.Context) {
 }
 
 func (h *handler) registerFlightTable(r *gin.RouterGroup) {
+	r = r.Group("/flightTable")
 	r.GET("/getAllFlightTables", h.GetAllFlightTables)
 }

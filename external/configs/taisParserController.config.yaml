@@ -1,0 +1,5 @@
+FTPCheckTimeoutSeconds: 15
+bucketName: "saina1-bucket1"
+taisDirPath: "/external/dynamic/tais"
+fileDownloadTLSeconds: 10
+fileUploadTLSeconds: 10

@@ -1,0 +1,3 @@
+taisDirPath: "/external/dynamic/tais/"
+totalCashDelimiterIndex: 23
+defaultFlightsSliceCapacity: 3600

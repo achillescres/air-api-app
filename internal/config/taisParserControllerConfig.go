@@ -9,14 +9,16 @@ import (
 const taisParserControllerConfigFilename = "taisParserController.config.yaml"
 
 type TaisParserControllerConfig struct {
-	FTPCheckTimeoutSeconds       int    `yaml:"FTPCheckTimeoutSeconds" env-required:"true"`
-	BucketName                   string `yaml:"bucketName" env-required:"true"`
-	TaisDirPath                  string `yaml:"taisDirPath" env-required:"true"`
-	FileDownloadTimeLimitSeconds int    `yaml:"fileDownloadTimeLimit" env-required:"true"`
+	FTPCheckTimeoutSeconds int    `yaml:"FTPCheckTimeoutSeconds"`
+	BucketName             string `yaml:"bucketName"`
+	TaisDirPath            string `yaml:"taisDirPath"`
+	FileDownloadTLSeconds  int    `yaml:"fileDownloadTLSeconds"`
+	FileUploadTLSeconds    int    `yaml:"fileUploadTLSeconds"`
 
-	TaisDirAbsPath        string
-	FTPCheckTimeout       time.Duration
-	FileDownloadTimeLimit time.Duration
+	TaisDirAbsPath  string
+	FTPCheckTimeout time.Duration
+	FileDownloadTL  time.Duration
+	FileUploadTL    time.Duration
 }
 
 var (
@@ -29,7 +31,8 @@ func TaisParserController() TaisParserControllerConfig {
 		readConfig(path.Join(Env().ConfigAbsPath, taisParserControllerConfigFilename), taisParserControllerCfgInst)
 		taisParserControllerCfgInst.FTPCheckTimeout = time.Second * time.Duration(taisParserControllerCfgInst.FTPCheckTimeoutSeconds)
 		taisParserControllerCfgInst.TaisDirAbsPath = path.Join(Env().ProjectAbsPath, taisParserControllerCfgInst.TaisDirPath)
-		taisParserControllerCfgInst.FileDownloadTimeLimit = time.Second * time.Duration(taisParserControllerCfgInst.FileDownloadTimeLimitSeconds)
+		taisParserControllerCfgInst.FileDownloadTL = time.Second * time.Duration(taisParserControllerCfgInst.FileDownloadTLSeconds)
+		taisParserControllerCfgInst.FileUploadTL = time.Second * time.Duration(taisParserControllerCfgInst.FileUploadTLSeconds)
 	})
 
 	return *taisParserControllerCfgInst
